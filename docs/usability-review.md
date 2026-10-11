@@ -18,3 +18,9 @@ Method: independent code walkthroughs of all three modes, state transitions, pho
 Practice correctness measures the first submitted answer for each question, including questions with replay/reference. Unassisted correctness, timing and adaptive sampling retain their original meaning. Rehearsing after scoring does not count as another attempt. Practice and unassisted results should not be interpreted as equivalent measures.
 
 Remaining product questions warrant observation with learners: whether the starting note range is too broad; whether learners prefer a fixed reference before each question; whether they understand silent answer entry without explanation. A narrower beginner curriculum, per-mode progress filtering and guided reference exercises remain useful follow-ups. Automated viewport checks cannot establish touch accuracy or learning effectiveness; actual phone speakers, Safari and physical MIDI are not covered by Chromium tests.
+
+## Follow-up from a real phone screenshot
+
+The earlier audit missed the idle screen. The viewport assertions started after pressing Start, while initial setup and post-session results still used the tall layout. The user screenshot showed the statistics and introduction filling the screen, with the piano below it. This was an actual defect in the initial flow, not evidence of an outdated client.
+
+The practice screen now keeps one card containing scrollable question/feedback, a separate fixed action band, and the piano. This structure is used before, during and after a session. On phones statistics live in Progress, and setup opens in a modal dialog. Fresh-browser tests assert all keys and the Start button are visible before any click at five sizes, including 390×704 to represent reduced space under Android browser chrome. They verify that the piano stays in place through settings, listening, answering, Next and results. These checks are still browser emulation rather than physical-device testing.

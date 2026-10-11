@@ -44,6 +44,7 @@ function syncSettings() {
   for (const name of ['accidentals', 'labels', 'challenge']) $(name).checked = settings[name];
   $('computer-keyboard').checked = settings.computerKeyboard;
   $('settings-fields').disabled = isActive();
+  $('open-settings').disabled = isActive();
   $('settings-note').textContent = !storageAvailable ? 'Trình duyệt không cho lưu dữ liệu. Tiến độ chỉ tồn tại trong lần mở này.' : isActive() ? 'Thiết lập được giữ cố định trong phiên. Kết thúc phiên để đổi.' : 'Các nốt cần luyện thêm sẽ xuất hiện thường hơn.';
   $('exercise-title').textContent = TITLES[settings.mode];
   $('practice-tip-text').textContent = settings.mode === 'melody' ? 'Nghe hình dáng của giai điệu: đi lên, đi xuống hay trở về nốt đầu? Chọn đủ 3 nốt theo thứ tự.' : settings.mode === 'interval' ? 'Nốt đầu là mốc nghe. So sánh nốt thứ hai với mốc ấy, rồi chọn riêng nốt thứ hai.' : 'Bắt đầu với một quãng tám. Hát thầm nốt vừa nghe trước khi chọn phím.';
@@ -63,7 +64,7 @@ function correctionDetails(attempt) {
 }
 function renderExercise() {
   if (state.phase === 'answered' && document.activeElement.matches('[data-midi]')) pendingPianoFocus = document.activeElement.dataset.midi;
-  if ($('exercise-body').contains(document.activeElement) && document.activeElement.id) pendingExerciseFocus = document.activeElement.id;
+  if (($('exercise-body').contains(document.activeElement) || $('exercise-actions').contains(document.activeElement)) && document.activeElement.id) pendingExerciseFocus = document.activeElement.id;
   const active = isActive();
   $('session-progress').hidden = !active && state.phase !== 'results';
   $('session-progress-fill').style.width = `${state.phase === 'results' ? 100 : (state.index + (state.phase === 'answered' ? 1 : 0)) * 10}%`;
@@ -71,11 +72,11 @@ function renderExercise() {
   let content = '';
   if (state.phase === 'idle') {
     const desc = settings.mode === 'note' ? 'Nghe một nốt, rồi tìm lại trên đàn piano.' : settings.mode === 'interval' ? 'Nghe hai nốt liên tiếp. Chọn nốt thứ hai trên đàn.' : 'Nghe giai điệu ngắn. Chọn lại 3 nốt theo thứ tự.';
-    content = `<div class="listen-space">${waveform(false)}<h3>${settings.mode === 'note' ? 'Nghe và tìm lại một nốt.' : settings.mode === 'interval' ? 'Nghe khoảng cách giữa hai nốt.' : 'Nhớ và chọn lại 3 nốt.'}</h3><p>${desc}<br>${MODE_NAMES[settings.mode]} · ${settings.range.replace('-', ' – ')} · 10 câu / phiên.</p><button class="primary-button" id="start-session" type="button">${playIcon}Bắt đầu luyện tập</button><p class="micro-note">${settings.challenge ? 'Thử thách: mỗi câu chỉ nghe một lần.' : 'Tốt nhất khi nghe bằng tai nghe.'}</p>${state.error ? `<p class="error-message">${state.error}</p>` : ''}</div><div class="card-bottom"><span>${speakerIcon}Âm thanh bật khi bạn bắt đầu</span><button class="text-button" id="adjust-settings" type="button">Đổi bài luyện / phạm vi</button></div>`;
+    content = `<div class="listen-space">${waveform(false)}<h3>${settings.mode === 'note' ? 'Nghe rồi chọn phím bên dưới.' : settings.mode === 'interval' ? 'Nghe khoảng cách giữa hai nốt.' : 'Nhớ và chọn lại 3 nốt.'}</h3><p>${desc}<br>${MODE_NAMES[settings.mode]} · ${settings.range.replace('-', ' – ')} · 10 câu / phiên.</p><button class="primary-button" id="start-session" type="button">${playIcon}Bắt đầu luyện tập</button><p class="micro-note">${settings.challenge ? 'Thử thách: mỗi câu chỉ nghe một lần.' : 'Tốt nhất khi nghe bằng tai nghe.'}</p>${state.error ? `<p class="error-message">${state.error}</p>` : ''}</div>`;
   } else if (state.phase === 'results') {
     const sessionSummary = summarize({ version: 1, attempts: state.session });
     const weak = sessionSummary.weakNotes.filter(n => n.mistakes > 0).slice(0, 3).map(n => n.name.replace('#', '♯'));
-    content = `<div class="results-space"><div class="result-symbol" aria-hidden="true">✓</div><h3>Một phiên luyện tập trọn vẹn.</h3><p>${state.session.length === 10 ? 'Bạn đã dành thời gian cho đôi tai của mình.' : `Bạn đã hoàn thành ${state.session.length} câu trong phiên này.`}</p><div class="result-metrics"><div><strong>${percent(sessionSummary.practiceAccuracy)}</strong><span>Trả lời đúng</span></div><div><strong>${sessionSummary.practiceCorrect}/${sessionSummary.attempts}</strong><span>Câu đúng / đã luyện</span></div><div><strong>${seconds(sessionSummary.averageMs)}</strong><span>Thời gian không hỗ trợ</span></div></div><div class="session-answer-list" aria-label="${sessionSummary.practiceCorrect} câu đúng, ${sessionSummary.attempts - sessionSummary.practiceCorrect} câu sai, ${sessionSummary.assisted} câu có hỗ trợ">${state.session.map((a, i) => `<span class="result-dot ${a.correct ? 'ok' : 'no'}" title="Câu ${i + 1}: ${`${a.correct ? 'đúng' : 'sai'}${a.assisted ? ', có hỗ trợ' : ''}`}"></span>`).join('')}</div><div class="button-row"><button class="primary-button" id="start-session" type="button">${playIcon}Luyện thêm một phiên</button><button class="secondary-button" id="view-progress" type="button">Xem tiến độ ↗</button></div><div class="results-details">${sessionSummary.assisted ? `${sessionSummary.assisted} câu có nghe lại hoặc nốt mẫu; vẫn tính vào kết quả luyện.<br>` : ''}${weak.length ? `Lần tới, tập trung thêm vào <strong>${weak.join(', ')}</strong>.` : 'Giữ nhịp luyện tập nhỏ này mỗi ngày.'}</div></div><div class="card-bottom"><span>Tiến độ ${storageAvailable ? 'đã lưu trên thiết bị' : 'chỉ lưu trong lần mở này'}</span><button class="end-session" id="reset-session" type="button">Đổi thiết lập</button></div>`;
+    content = `<div class="results-space"><div class="result-symbol" aria-hidden="true">✓</div><h3>Một phiên luyện tập trọn vẹn.</h3><p>${state.session.length === 10 ? 'Bạn đã dành thời gian cho đôi tai của mình.' : `Bạn đã hoàn thành ${state.session.length} câu trong phiên này.`}</p><div class="result-metrics"><div><strong>${percent(sessionSummary.practiceAccuracy)}</strong><span>Trả lời đúng</span></div><div><strong>${sessionSummary.practiceCorrect}/${sessionSummary.attempts}</strong><span>Câu đúng / đã luyện</span></div><div><strong>${seconds(sessionSummary.averageMs)}</strong><span>Thời gian không hỗ trợ</span></div></div><div class="session-answer-list" aria-label="${sessionSummary.practiceCorrect} câu đúng, ${sessionSummary.attempts - sessionSummary.practiceCorrect} câu sai, ${sessionSummary.assisted} câu có hỗ trợ">${state.session.map((a, i) => `<span class="result-dot ${a.correct ? 'ok' : 'no'}" title="Câu ${i + 1}: ${`${a.correct ? 'đúng' : 'sai'}${a.assisted ? ', có hỗ trợ' : ''}`}"></span>`).join('')}</div><div class="button-row"><button class="primary-button" id="start-session" type="button">${playIcon}Luyện tiếp</button><button class="secondary-button" id="view-progress" type="button">Xem tiến độ ↗</button></div><div class="results-details">${sessionSummary.assisted ? `${sessionSummary.assisted} câu có nghe lại hoặc nốt mẫu; vẫn tính vào kết quả luyện.<br>` : ''}${weak.length ? `Lần tới, tập trung thêm vào <strong>${weak.join(', ')}</strong>.` : 'Giữ nhịp luyện tập nhỏ này mỗi ngày.'}</div></div><div class="card-bottom"><span>Tiến độ ${storageAvailable ? 'đã lưu trên thiết bị' : 'chỉ lưu trong lần mở này'}</span><button class="end-session" id="reset-session" type="button">Đổi thiết lập</button></div>`;
   } else if (state.phase === 'answered') {
     const a = state.attempt;
     const correct = a.correct;
@@ -92,8 +93,18 @@ function renderExercise() {
     content = `<div class="listen-space">${waveform(listening)}${state.assisted ? '<span class="mini-badge">Có nghe lại / nốt mẫu</span>' : ''}<h3>${listening ? 'Lắng nghe…' : ready ? 'Sẵn sàng lắng nghe?' : headlines[settings.mode]}</h3><p>${listening ? 'Đợi âm thanh kết thúc trước khi chọn phím.' : ready ? 'Bấm nghe để phát câu hỏi.' : instructions[settings.mode]}</p>${melodySelection}<div class="button-row">${ready ? `<button class="primary-button" id="play-target" type="button">${speakerIcon}Nghe câu hỏi</button>` : `<button class="secondary-button" id="replay-target" type="button" ${listening || settings.challenge ? 'disabled' : ''}>${speakerIcon}${settings.challenge ? 'Chỉ nghe một lần' : 'Nghe lại'}</button>`}${settings.mode === 'note' && !settings.challenge ? `<button class="secondary-button" id="play-reference" type="button" ${!state.heard || listening ? 'disabled' : ''}>Nốt mẫu C4</button>` : ''}${settings.mode === 'melody' ? `<button class="primary-button" id="submit-melody" type="button" ${state.selected.length !== 3 || listening || ready ? 'disabled' : ''}>Xác nhận<span aria-hidden="true">→</span></button>` : ''}</div>${settings.mode === 'melody' && state.selected.length ? `<button class="text-button" id="undo-selection" type="button" ${listening ? 'disabled' : ''}>Xóa nốt cuối</button>` : ''}<p class="micro-note">${settings.challenge ? 'Thử thách · Không nghe lại, không nốt mẫu' : 'Cứ nghe lại khi cần. Kết quả luyện vẫn được ghi.'}</p>${settings.mode === 'note' && !settings.challenge ? '<p class="micro-note">C4 là mốc để nghe tương đối; bỏ mốc để luyện nhớ cao độ.</p>' : ''}${state.error ? `<p class="error-message">${state.error}</p>` : ''}</div><div class="card-bottom"><span>${settings.mode === 'melody' ? `${state.selected.length} / 3 nốt đã chọn` : 'Trả lời bằng đàn bên dưới'}</span><button class="end-session" id="end-session" type="button">Kết thúc phiên</button></div>`;
   }
   $('exercise-body').innerHTML = content;
+  // Core actions are a fixed sibling of the content and piano, across every phase.
+  const actions = $('exercise-body').querySelector('.button-row') || document.createElement('div');
+  actions.classList.add('button-row');
+  if (!actions.children.length) {
+    const start = $('exercise-body').querySelector('#start-session');
+    if (start) actions.append(start);
+  }
+  const undo = $('exercise-body').querySelector('#undo-selection');
+  if (undo) actions.append(undo);
+  $('exercise-actions').replaceChildren(actions);
   $('piano-description').textContent = state.phase === 'answered' ? 'So sánh đáp án. Bấm “Câu tiếp theo” khi sẵn sàng.' : state.phase === 'listening' || state.phase === 'ready' ? 'Nghe hết câu hỏi trước khi chọn phím.' : state.phase === 'awaiting' ? settings.mode === 'melody' ? 'Chọn 3 phím theo thứ tự nghe được.' : 'Chọn một phím để gửi câu trả lời.' : 'Chạm phím để làm quen với âm thanh.';
-  $('piano-title').textContent = state.phase === 'awaiting' ? 'Chọn phím · Không phát âm' : state.phase === 'answered' ? 'Chạm phím để tập lại' : 'Đàn piano của bạn';
+  $('piano-title').textContent = state.phase === 'awaiting' ? 'Chọn phím · Không phát âm' : state.phase === 'answered' ? 'Chạm phím để tập lại' : 'Chạm phím để nghe thử';
   if (state.phase === 'answered') $('piano-description').textContent = 'Chạm phím để nghe và tập lại. Kết quả câu trả lời đã được ghi.';
   updatePianoState();
   if (pendingExerciseFocus && !state.playbackBusy && state.view === 'practice' && (state.phase !== 'ready' || state.error)) {
@@ -138,7 +149,7 @@ function updatePianoState() {
     button.classList.toggle('wrong-key', wrongPosition);
   }
 }
-function render() { document.body.classList.toggle('session-active', isActive() && state.view === 'practice'); syncSettings(); renderStats(); renderExercise(); }
+function render() { document.body.classList.toggle('practice-screen', state.view === 'practice'); document.body.dataset.phase = state.phase; document.body.classList.toggle('session-active', isActive() && state.view === 'practice'); syncSettings(); renderStats(); renderExercise(); }
 function audioError() { state.error = 'Không thể phát âm thanh. Kiểm tra âm lượng và quyền âm thanh của trình duyệt, rồi bấm nghe lại.'; announce(state.error); }
 async function playTarget(assisted = false) {
   if (!state.question || state.phase === 'answered' || state.phase === 'results' || state.phase === 'listening') return;
@@ -243,6 +254,7 @@ function renderProgress() {
 }
 function showView(view) {
   state.view = view;
+  document.body.classList.toggle('practice-screen', view === 'practice');
   document.body.classList.toggle('session-active', isActive() && view === 'practice');
   $('practice-view').hidden = view !== 'practice'; $('progress-view').hidden = view !== 'progress';
   $('practice-tab').classList.toggle('selected', view === 'practice'); $('progress-tab').classList.toggle('selected', view === 'progress');
@@ -256,9 +268,15 @@ function showView(view) {
     target?.focus({ preventScroll: true });
   }
 }
-$('exercise-body').addEventListener('click', event => {
+function openSettings() {
+  if (isActive()) return;
+  $('settings-dialog').showModal();
+}
+$('open-settings').addEventListener('click', openSettings);
+$('close-settings').addEventListener('click', () => $('settings-dialog').close());
+document.querySelector('.practice-card').addEventListener('click', event => {
   const button = event.target.closest('button'); if (!button || button.disabled) return;
-  const actions = { 'start-session': startSession, 'adjust-settings': () => { $('mode').focus(); $('mode').scrollIntoView({ block: 'center', behavior: 'smooth' }); }, 'play-target': () => playTarget(), 'replay-target': () => playTarget(true), 'play-reference': playReference, 'next-question': nextQuestion, 'end-session': finishSession, 'submit-melody': () => submitAnswer([...state.selected]), 'undo-selection': () => { if (state.phase === 'awaiting') { state.selected.pop(); renderExercise(); announce(`Đã xóa nốt cuối. Còn ${state.selected.length} trên 3 nốt.`); } }, 'hear-correct': () => hearAnswer(state.question.answer), 'compare-answer': () => { announce('Nghe phần bạn chọn trước, rồi đáp án.'); return hearAnswer([...state.attempt.answer, ...state.question.answer]); }, 'view-progress': () => showView('progress'), 'reset-session': () => { state.phase = 'idle'; state.question = null; render(); } };
+  const actions = { 'start-session': startSession, 'adjust-settings': openSettings, 'play-target': () => playTarget(), 'replay-target': () => playTarget(true), 'play-reference': playReference, 'next-question': nextQuestion, 'end-session': finishSession, 'submit-melody': () => submitAnswer([...state.selected]), 'undo-selection': () => { if (state.phase === 'awaiting') { state.selected.pop(); renderExercise(); announce(`Đã xóa nốt cuối. Còn ${state.selected.length} trên 3 nốt.`); } }, 'hear-correct': () => hearAnswer(state.question.answer), 'compare-answer': () => { announce('Nghe phần bạn chọn trước, rồi đáp án.'); return hearAnswer([...state.attempt.answer, ...state.question.answer]); }, 'view-progress': () => showView('progress'), 'reset-session': () => { state.phase = 'idle'; state.question = null; render(); $('open-settings').focus({ preventScroll: true }); } };
   actions[button.id]?.();
 });
 for (const id of ['mode', 'range', 'timbre', 'accidentals', 'labels', 'challenge']) {

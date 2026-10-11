@@ -4,11 +4,87 @@ import assert from 'node:assert/strict';
 const baseURL = process.env.PITCH_BASE_URL || 'http://localhost:4173/pitch-trainer/';
 await mkdir('test-results', { recursive: true });
 let browser, page;
+const errors = [];
+const phoneViewports = [
+ {width:320,height:568}, {width:360,height:640}, {width:390,height:660},
+ {width:390,height:704}, {width:430,height:740},
+];
+async function changeSettings(target, configure) {
+ await target.click('#open-settings');
+ await target.waitForSelector('#settings-dialog[open]');
+ await configure();
+ await target.click('#close-settings');
+ assert.equal(await target.locator('#settings-dialog').isVisible(), false, 'settings close before returning to practice');
+}
+async function visibleBox(target, selector, label) {
+ const box = await target.locator(selector).boundingBox();
+ const viewport = target.viewportSize();
+ assert(box && box.x >= -1 && box.y >= -1 && box.x + box.width <= viewport.width + 1 && box.y + box.height <= viewport.height + 1,
+  `${label} fully visible at ${viewport.width}x${viewport.height}: ${JSON.stringify(box)}`);
+ return box;
+}
+async function pianoGeometry(target, phase) {
+ assert.equal(await target.locator('.piano-key.white').count(), 8, `${phase} retains all eight white keys`);
+ const boxes = [];
+ for (const key of await target.locator('.piano-key').all()) {
+  const midi = await key.getAttribute('data-midi');
+  boxes.push(await visibleBox(target, `[data-midi="${midi}"]`, `${phase}: key ${midi}`));
+ }
+ assert(await target.evaluate(() => document.documentElement.scrollHeight <= innerHeight && scrollY === 0), `${phase} requires no vertical scrolling`);
+ assert(await target.evaluate(() => document.documentElement.scrollWidth <= innerWidth && document.querySelector('#piano-scroll').scrollLeft === 0), `${phase} requires no horizontal scrolling`);
+ return boxes;
+}
+function sameGeometry(actual, expected, label) {
+ assert.equal(actual.length, expected.length);
+ actual.forEach((box, index) => {
+  for (const property of ['x','y','width','height']) {
+   assert(Math.abs(box[property] - expected[index][property]) <= 1, `${label}: control ${index} ${property} stays stable (${box[property]} vs ${expected[index][property]})`);
+  }
+ });
+}
 (async()=>{
  browser=await chromium.launch({headless:true});
+ // Fresh contexts reproduce the first screen, before focus or a click can scroll it.
+ for (const viewport of phoneViewports) {
+  const initial = await browser.newContext({viewport});
+  await initial.addInitScript(() => {Math.random = () => 0});
+  page = await initial.newPage();
+  page.on('pageerror', e => errors.push(e.message));
+  await page.goto(baseURL);
+  await page.waitForSelector('#start-session');
+  assert(await page.evaluate(() => document.querySelector('#exercise-body').closest('.practice-card') === document.querySelector('#piano').closest('.practice-card')), 'exercise and piano share one practice card');
+  await visibleBox(page, '#start-session', 'initial start button');
+  const idleKeys = await pianoGeometry(page, 'initial idle');
+  await page.screenshot({path:`test-results/idle-${viewport.width}x${viewport.height}.png`});
+  await page.click('#open-settings');
+  await page.waitForSelector('#settings-dialog[open]');
+  await page.click('#close-settings');
+  sameGeometry(await pianoGeometry(page, 'after settings'), idleKeys, 'closing settings preserves piano');
+  await page.click('#start-session');
+  await page.waitForFunction(() => !document.querySelector('[data-midi="60"]').disabled);
+  assert(await page.locator('#open-settings').isDisabled(), 'active session keeps settings fixed');
+  sameGeometry(await pianoGeometry(page, 'after start'), idleKeys, 'start preserves piano');
+  const hear = await visibleBox(page, '#replay-target', 'hear button');
+  await page.click('#replay-target');
+  await page.waitForFunction(() => !document.querySelector('[data-midi="60"]').disabled);
+  sameGeometry(await pianoGeometry(page, 'after hear'), idleKeys, 'hearing preserves piano');
+  sameGeometry([await visibleBox(page, '#replay-target', 'hear after playback')], [hear], 'hear button stays stable');
+  await page.click('[data-midi="60"]');
+  await visibleBox(page, '#next-question', 'next button');
+  sameGeometry(await pianoGeometry(page, 'answered'), idleKeys, 'feedback preserves piano');
+  await page.click('#next-question');
+  await page.waitForFunction(() => !document.querySelector('[data-midi="60"]').disabled);
+  sameGeometry(await pianoGeometry(page, 'after next'), idleKeys, 'next preserves piano');
+  sameGeometry([await visibleBox(page, '#replay-target', 'hear on next question')], [hear], 'next preserves hear position');
+  await page.click('#end-session');
+  await page.waitForSelector('.result-metrics');
+  sameGeometry(await pianoGeometry(page, 'results'), idleKeys, 'results retain piano position');
+  await initial.close();
+ }
+
  const context=await browser.newContext({viewport:{width:390,height:660}});
  await context.addInitScript(()=>{Math.random=()=>0});
- page=await context.newPage(); const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));
  await page.goto(baseURL);
  await page.waitForSelector('#start-session');
  await page.screenshot({path:'test-results/mobile.png',fullPage:true});
@@ -24,7 +100,7 @@ let browser, page;
     `piano stays onscreen at ${viewport.width}x${viewport.height}: ${JSON.stringify(box)}`);
   assert(await page.evaluate(()=>document.documentElement.scrollHeight<=innerHeight), 'practice does not require page scrolling');
  }
- for (const viewport of [{width:320,height:568},{width:360,height:640},{width:390,height:660},{width:430,height:740}]) {
+ for (const viewport of phoneViewports) {
   await page.setViewportSize(viewport);
   await assertKeyboardVisible();
   const replay = await page.locator('#replay-target').boundingBox();
@@ -47,11 +123,11 @@ let browser, page;
  }
  assert.equal(await page.locator('#total-stat').innerText(),'10');
  assert.equal(await page.locator('#accuracy-stat').innerText(),'100%');
- await page.click('#reset-session');await page.selectOption('#mode','interval');
+ await page.click('#reset-session');await changeSettings(page, () => page.selectOption('#mode','interval'));
  await page.click('#start-session');await page.waitForFunction(()=>!document.querySelector('[data-midi="62"]').disabled);
  await assertKeyboardVisible(62);
  await page.click('[data-midi="62"]'); assert((await page.locator('#exercise-body').innerText()).includes('Đúng rồi'));
- await page.click('#end-session');await page.click('#reset-session');await page.selectOption('#mode','melody');
+ await page.click('#end-session');await page.click('#reset-session');await changeSettings(page, () => page.selectOption('#mode','melody'));
  await page.click('#start-session');await page.waitForFunction(()=>!document.querySelector('[data-midi="60"]').disabled);
  await assertKeyboardVisible();
  for(const n of [60,62,64]) await page.click(`[data-midi="${n}"]`);
@@ -60,17 +136,18 @@ let browser, page;
  assert.equal(await page.locator('.note-slot:not(.empty)').count(),2);
  await page.click('[data-midi="60"]');
  await page.click('#submit-melody');assert((await page.locator('#exercise-body').innerText()).includes('Đúng rồi'));
- await page.click('#end-session');await page.click('#reset-session');await page.selectOption('#mode','note');
+ await page.click('#end-session');await page.click('#reset-session');await changeSettings(page, () => page.selectOption('#mode','note'));
  await page.click('#start-session');await page.waitForFunction(()=>!document.querySelector('[data-midi="60"]').disabled);
  await page.click('#replay-target');await page.waitForFunction(()=>!document.querySelector('[data-midi="60"]').disabled);await page.click('[data-midi="60"]');
  assert((await page.locator('#exercise-body').innerText()).includes('Có hỗ trợ'));
  assert.equal(await page.locator('#streak-stat').innerText(),'13', 'replay supports practice without erasing a correct streak');
  assert.equal(await page.locator('#accuracy-stat').innerText(),'100%');
  await page.click('#end-session');await page.click('#reset-session');
- await page.check('#accidentals');await page.selectOption('#range','C3-C5');
+ await changeSettings(page, async () => {await page.check('#accidentals');await page.selectOption('#range','C3-C5')});
  assert(await page.locator('[data-midi="61"]').isEnabled());
  assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
  await page.reload();assert.equal(await page.locator('#total-stat').innerText(),'13');
+ assert.equal(await page.locator('#settings-dialog').isVisible(), false, 'reloading never reopens settings');
  await page.evaluate(()=>navigator.serviceWorker.ready);await page.waitForFunction(()=>navigator.serviceWorker.controller!==null);
  await context.setOffline(true);await page.reload(); await page.waitForSelector('#start-session');
  assert.equal(await page.locator('#total-stat').innerText(),'13');
@@ -92,7 +169,7 @@ let browser, page;
  assert.equal(await page.locator('#accuracy-stat').innerText(),'93%');
  assert.equal(await page.locator('#streak-stat').innerText(),'0');
  await page.click('#end-session'); await page.click('#reset-session');
- await page.check('#challenge'); await page.click('#start-session');
+ await changeSettings(page, () => page.check('#challenge')); await page.click('#start-session');
  await page.waitForFunction(()=>!document.querySelector('[data-midi="48"]').disabled);
  assert(await page.locator('#replay-target').isDisabled());
  assert.equal(await page.locator('#play-reference').count(),0);
@@ -101,13 +178,13 @@ let browser, page;
  assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
  await page.screenshot({path:'test-results/mobile-360.png',fullPage:true});
  assert.deepEqual(errors,[]);
- console.log('PASS: phone viewport 320–430px without page scrolling, 10-round session, interval, ordered melody, replay scoring, dark keys, persistence, subpath offline audio/gameplay, mobile overflow, no page errors');
+ console.log('PASS: initial idle, start, hear, feedback, next, and retained results piano stable at five phone viewports without scrolling, 10-round session, interval, ordered melody, replay scoring, dark keys, persistence, subpath offline audio/gameplay, mobile overflow, no page errors');
  await context.setOffline(false);await page.close();
  const desktop=await context.newPage();await desktop.setViewportSize({width:1440,height:1000});await desktop.goto(baseURL);await desktop.screenshot({path:'test-results/desktop.png',fullPage:true});
  const learner = await browser.newContext({viewport:{width:844,height:390}});
  await learner.addInitScript(()=>{Math.random=()=>0});
- page=await learner.newPage(); await page.goto(baseURL);
- await page.selectOption('#mode','melody'); await page.click('#start-session');
+ page=await learner.newPage();page.on('pageerror',e=>errors.push(e.message)); await page.goto(baseURL);
+ await changeSettings(page, () => page.selectOption('#mode','melody')); await page.click('#start-session');
  await page.waitForFunction(()=>!document.querySelector('[data-midi="60"]').disabled);
  for(const viewport of [{width:844,height:390},{width:667,height:375},{width:320,height:568}]) {
   await page.setViewportSize(viewport); await assertKeyboardVisible();
@@ -129,7 +206,7 @@ let browser, page;
  }
  await page.screenshot({path:'test-results/landscape-feedback.png'});
  await page.click('#end-session'); await page.click('#reset-session');
- await page.selectOption('#mode','note'); await page.click('#start-session');
+ await changeSettings(page, () => page.selectOption('#mode','note')); await page.click('#start-session');
  await page.waitForFunction(()=>!document.querySelector('[data-midi="60"]').disabled);
  await page.click('#replay-target'); await page.waitForFunction(()=>!document.querySelector('[data-midi="60"]').disabled);
  await page.click('[data-midi="60"]');
@@ -138,5 +215,6 @@ let browser, page;
  assert((await page.locator('.result-metrics').innerText()).includes('100%'), 'a wholly assisted practice still has an understandable result');
  await page.click('#view-progress');
  assert((await page.locator('#progress-content').innerText()).includes('Không hỗ trợ: 0% trên 1 câu'), 'unassisted measurement stays distinct');
+ assert.deepEqual(errors,[]);
  await learner.close(); await browser.close();
 })().catch(async e=>{console.error(e);await page?.screenshot({path:'test-results/failure.png',fullPage:true}).catch(()=>{});await browser?.close();process.exitCode=1});
