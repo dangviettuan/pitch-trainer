@@ -1,6 +1,6 @@
 const CACHE_PREFIX = 'pitch-trainer-';
-const SHELL_CACHE = `${CACHE_PREFIX}shell-v3`;
-const ASSET_CACHE = `${CACHE_PREFIX}assets-v3`;
+const SHELL_CACHE = `${CACHE_PREFIX}shell-v4`;
+const ASSET_CACHE = `${CACHE_PREFIX}assets-v4`;
 const APP_SHELL_FILES = [
   './',
   './index.html',
