@@ -3,12 +3,12 @@ import { mkdir } from 'node:fs/promises';
 import assert from 'node:assert/strict';
 const baseURL = process.env.PITCH_BASE_URL || 'http://localhost:4173/pitch-trainer/';
 await mkdir('test-results', { recursive: true });
-let browser;
+let browser, page;
 (async()=>{
  browser=await chromium.launch({headless:true});
  const context=await browser.newContext({viewport:{width:390,height:660}});
  await context.addInitScript(()=>{Math.random=()=>0});
- const page=await context.newPage(); const errors=[];page.on('pageerror',e=>errors.push(e.message));
+ page=await context.newPage(); const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto(baseURL);
  await page.waitForSelector('#start-session');
  await page.screenshot({path:'test-results/mobile.png',fullPage:true});
@@ -29,6 +29,7 @@ let browser;
   const replay = await page.locator('#replay-target').boundingBox();
   assert(replay.y >= 0 && replay.y + replay.height <= viewport.height, 'listen button is onscreen');
   const key = await page.locator('[data-midi="60"]').boundingBox();
+  console.log('Mobile control positions:', JSON.stringify({viewport,key,replay,gap:key.y-(replay.y+replay.height)}));
   assert(key.y - (replay.y + replay.height) <= 140, 'listen and piano controls stay close');
  }
  await page.setViewportSize({width:390,height:660});
@@ -87,4 +88,4 @@ let browser;
  await context.setOffline(false);await page.close();
  const desktop=await context.newPage();await desktop.setViewportSize({width:1440,height:1000});await desktop.goto(baseURL);await desktop.screenshot({path:'test-results/desktop.png',fullPage:true});
  await browser.close();
-})().catch(async e=>{console.error(e);await browser?.close();process.exitCode=1});
+})().catch(async e=>{console.error(e);await page?.screenshot({path:'test-results/failure.png',fullPage:true}).catch(()=>{});await browser?.close();process.exitCode=1});
