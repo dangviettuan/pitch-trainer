@@ -1,0 +1,20 @@
+{
+  "id": "./",
+  "name": "Pitch Trainer",
+  "short_name": "Pitch Trainer",
+  "description": "Practice pitch, intervals, and short melodies.",
+  "lang": "vi",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f4f0e8",
+  "theme_color": "#153c35",
+  "icons": [
+    {
+      "src": "./icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

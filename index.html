@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="vi">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#f4f3ed" />
+    <meta name="description" content="Luyện nghe cao độ bằng piano: nốt đơn, quãng và giai điệu. Tiến độ được lưu riêng trên thiết bị của bạn." />
+    <title>Pitch — Luyện nghe cao độ</title>
+    <link rel="manifest" href="./manifest.webmanifest" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='12' fill='%23526a56'/%3E%3Cpath d='M12 28V12h16v16M17 12v16M23 12v16' fill='none' stroke='%23fff' stroke-width='2'/%3E%3C/svg%3E" />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="Điều hướng chính">
+        <a class="brand" href="./" aria-label="Pitch — Trang chủ">
+          <span class="brand-icon"><svg viewBox="0 0 32 32" fill="none" aria-hidden="true"><path d="M7 7h18v18H7zM13 7v18M19 7v18" stroke="currentColor" stroke-width="1.5"/><path d="M11 7h4v11h-4zm6 0h4v11h-4z" fill="currentColor"/></svg></span>
+          <span>PITCH<span class="brand-subtitle">DAILY PRACTICE</span></span>
+        </a>
+        <nav class="nav-links">
+          <button class="nav-item selected" id="practice-tab" type="button" aria-current="page"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V5l11-2v13M9 8l11-2"/><ellipse cx="6" cy="18" rx="3" ry="2.5"/><ellipse cx="17" cy="16" rx="3" ry="2.5"/></svg>Luyện nghe<span class="nav-dot"></span></button>
+          <button class="nav-item" id="progress-tab" type="button"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 19h16M6 15v-4m6 4V5m6 10V8"/></svg>Tiến độ</button>
+        </nav>
+        <div class="sidebar-note"><span class="small-dot"></span>Mỗi ngày, nghe tốt hơn.<p>Đi chậm. Nghe kỹ.<br>Tin vào đôi tai của bạn.</p></div>
+        <div class="privacy-note"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7 10V7a5 5 0 0 1 10 0v3M5 10h14v11H5z"/></svg>Tiến độ lưu trên thiết bị</div>
+      </aside>
+      <main>
+        <header class="page-header">
+          <div><p class="eyebrow">DÀNH MỘT CHÚT THỜI GIAN CHO ÂM NHẠC</p><h1 id="page-title">Nghe kỹ. <span>Chạm đúng.</span></h1><p class="page-description" id="page-description">Rèn đôi tai của bạn, từng nốt nhạc một.</p></div>
+          <span class="header-badge"><span class="small-dot"></span>Không gian luyện tập của bạn</span>
+        </header>
+        <section class="stats-row" aria-label="Tiến độ luyện tập">
+          <div class="stat"><span class="stat-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 3v18M4 8l16 8M4 16l16-8"/></svg></span><div><strong id="total-stat">0</strong><span>Câu đã luyện</span></div></div>
+          <div class="stat"><span class="stat-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="12" r="8"/><circle cx="12" cy="12" r="3"/><path d="m12 12 7-7"/></svg></span><div><strong id="accuracy-stat">—</strong><span>Chính xác lần đầu</span></div></div>
+          <div class="stat"><span class="stat-icon"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="m5 14 5 4L20 6"/></svg></span><div><strong id="streak-stat">0</strong><span>Chuỗi trả lời đúng</span></div></div>
+        </section>
+        <div id="practice-view">
+          <div class="practice-grid">
+            <section class="practice-card" aria-labelledby="exercise-title">
+              <div class="card-heading"><div><span class="section-kicker">BÀI LUYỆN</span><h2 id="exercise-title">Nhận diện nốt nhạc</h2></div><span class="session-count" id="session-count">10 câu / phiên</span></div>
+              <div class="session-progress" id="session-progress" hidden><div id="session-progress-fill"></div></div>
+              <div id="exercise-body"></div>
+            </section>
+            <aside class="settings-card" aria-labelledby="settings-heading">
+              <div class="settings-heading"><h2 id="settings-heading">Thiết lập</h2><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6h16M4 12h16M4 18h16"/><circle cx="9" cy="6" r="2"/><circle cx="16" cy="12" r="2"/><circle cx="8" cy="18" r="2"/></svg></div>
+              <fieldset id="settings-fields">
+                <label class="control-label" for="mode">Kiểu luyện tập</label><select id="mode"><option value="note">Nốt đơn</option><option value="interval">Quãng — tìm nốt thứ hai</option><option value="melody">Giai điệu — 3 nốt</option></select>
+                <label class="control-label" for="range">Phạm vi nốt</label><select id="range"><option value="C4-C5">C4 – C5 · Một quãng tám</option><option value="C3-C5">C3 – C5 · Âm vực thấp</option><option value="C4-C6">C4 – C6 · Âm vực cao</option></select>
+                <label class="control-label" for="timbre">Âm thanh</label><select id="timbre"><option value="piano">Piano</option><option value="sine">Sóng sin · Âm thuần</option></select>
+                <label class="toggle-row"><span>Nốt thăng / giáng<span class="control-hint">Bao gồm phím đen</span></span><input id="accidentals" type="checkbox" role="switch" /><span class="switch" aria-hidden="true"></span></label>
+                <label class="toggle-row"><span>Hiện tên nốt</span><input id="labels" type="checkbox" role="switch" checked /><span class="switch" aria-hidden="true"></span></label>
+                <label class="toggle-row"><span>Chế độ thử thách<span class="control-hint">Nghe một lần, không nốt mẫu</span></span><input id="challenge" type="checkbox" role="switch" /><span class="switch" aria-hidden="true"></span></label>
+              </fieldset>
+              <p class="settings-note" id="settings-note">Các nốt cần luyện thêm sẽ xuất hiện thường hơn.</p>
+            </aside>
+          </div>
+          <section class="piano-card" aria-labelledby="piano-title">
+            <div class="piano-heading"><div><h2 id="piano-title">Đàn piano của bạn</h2><p id="piano-description">Chạm phím để làm quen với âm thanh.</p></div><label class="keyboard-option"><input type="checkbox" id="computer-keyboard" />Dùng bàn phím máy tính</label></div>
+            <div class="piano-scroll" id="piano-scroll" tabindex="0" aria-label="Bàn phím piano, cuộn ngang để xem thêm phím"><div id="piano" class="piano"></div></div>
+            <div class="piano-footer"><span id="piano-range">C4 — C5</span><span id="input-hint">Chạm hoặc nhấp vào phím</span><button id="midi-button" type="button">Kết nối MIDI <span aria-hidden="true">↗</span></button></div>
+            <p class="midi-status" id="midi-status" hidden aria-live="polite"></p>
+          </section>
+          <div class="practice-tip"><span class="tip-label">MỘT GỢI Ý NHỎ</span><p id="practice-tip-text">Bắt đầu với một quãng tám. Hát thầm nốt vừa nghe trước khi chọn phím.</p><span class="tip-decoration" aria-hidden="true">♩</span></div>
+        </div>
+        <section id="progress-view" hidden aria-labelledby="progress-title"><div class="progress-panel"><div class="card-heading"><div><span class="section-kicker">NHỮNG BƯỚC TIẾN NHỎ</span><h2 id="progress-title">Đôi tai của bạn đang học</h2></div><button class="text-button" id="back-to-practice" type="button">Tiếp tục luyện tập ↗</button></div><div id="progress-content"></div></div></section>
+        <footer class="page-footer"><span>PITCH <span class="footer-dot">·</span> Tập trung vào điều bạn nghe.</span><span>Không cần tài khoản. Không dùng micro.</span></footer>
+      </main>
+    </div>
+    <div class="sr-only" id="announcement" role="status" aria-live="polite" aria-atomic="true"></div>
+    <script type="module" src="./src/app.js"></script>
+  </body>
+</html>

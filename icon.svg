@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Pitch Trainer">
+  <rect width="512" height="512" rx="112" fill="#153c35"/>
+  <path d="M97 327h52V185H97zm83 0h52V129h-52zm83 0h52V211h-52zm83 0h52V157h-52z" fill="#f4f0e8"/>
+  <path d="m111 366 67-54 61 17 71-93 87 16" fill="none" stroke="#efb866" stroke-linecap="round" stroke-linejoin="round" stroke-width="20"/>
+  <circle cx="397" cy="252" r="14" fill="#efb866"/>
+</svg>
