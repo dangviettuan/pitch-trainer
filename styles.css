@@ -131,6 +131,7 @@
   .session-active .listen-space h3 { margin: 0 0 6px; font-size: 20px; }
   .session-active .listen-space > p { margin-bottom: 10px; }
   .session-active .listen-space > p.micro-note { margin-top: 6px !important; font-size: 11px !important; }
+  .session-active .listen-space > .button-row { order: 1; margin-top: 8px; }
   .session-active .card-bottom { flex: none; padding-top: 4px; }
   .session-active .end-session { min-height: 36px; padding: 6px 8px; }
   .session-active .piano-card { flex: none; padding: 10px 12px 6px; margin: 0; }
