@@ -87,6 +87,7 @@ let browser, page;
  assert.equal(await page.evaluate(()=>document.activeElement.id),'compare-answer', 'comparison retains keyboard focus');
  await page.click('[data-midi="48"]');
  await page.waitForFunction(()=>!document.querySelector('#hear-correct').disabled);
+ assert.equal(await page.evaluate(()=>document.activeElement.dataset.midi),'48', 'rehearsal restores focus to the played key');
  assert.equal(await page.evaluate(()=>JSON.parse(localStorage.getItem('pitch.profile.v1')).attempts.length),beforeRehearsal, 'correction rehearsal never changes the original score');
  assert.equal(await page.locator('#accuracy-stat').innerText(),'93%');
  assert.equal(await page.locator('#streak-stat').innerText(),'0');

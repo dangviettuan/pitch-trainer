@@ -28,6 +28,7 @@ let midiAccess = null;
 let clearArmed = false;
 let clearTimer = null;
 let pendingExerciseFocus = null;
+let pendingPianoFocus = null;
 const speakerIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m11 5-6 4H2v6h3l6 4V5ZM15 8a6 6 0 0 1 0 8m3-11a10 10 0 0 1 0 14"/></svg>';
 const playIcon = '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="m9 5 11 7-11 7V5Z" fill="currentColor" stroke="none"/></svg>';
 const waveform = playing => `<div class="waveform${playing ? ' playing' : ''}" aria-hidden="true">${'<i></i>'.repeat(13)}</div>`;
@@ -61,6 +62,7 @@ function correctionDetails(attempt) {
   return distance ? `<p class="correction-hint">Bạn chọn ${distance > 0 ? 'cao' : 'thấp'} hơn đáp án ${Math.abs(distance)} bán âm. Nghe bạn chọn trước, rồi đáp án.</p>` : '';
 }
 function renderExercise() {
+  if (state.phase === 'answered' && document.activeElement.matches('[data-midi]')) pendingPianoFocus = document.activeElement.dataset.midi;
   if ($('exercise-body').contains(document.activeElement) && document.activeElement.id) pendingExerciseFocus = document.activeElement.id;
   const active = isActive();
   $('session-progress').hidden = !active && state.phase !== 'results';
@@ -99,6 +101,11 @@ function renderExercise() {
     const target = replacement && !replacement.disabled ? replacement : state.phase === 'awaiting' ? $('piano').querySelector('button:not(:disabled)') : state.phase === 'answered' ? $('next-question') : state.phase === 'ready' ? $('play-target') : $('start-session');
     target?.focus({ preventScroll: true });
     pendingExerciseFocus = null;
+  }
+  if (state.phase !== 'answered') pendingPianoFocus = null;
+  else if (pendingPianoFocus && !state.playbackBusy && state.view === 'practice') {
+    $('piano').querySelector(`[data-midi="${pendingPianoFocus}"]`)?.focus({ preventScroll: true });
+    pendingPianoFocus = null;
   }
 }
 function renderPiano() {
@@ -244,6 +251,10 @@ function showView(view) {
   $('page-title').innerHTML = view === 'practice' ? 'Nghe kỹ. <span>Chạm đúng.</span>' : 'Từng nốt. <span>Từng tiến bộ.</span>';
   $('page-description').textContent = view === 'practice' ? 'Rèn đôi tai của bạn, từng nốt nhạc một.' : 'Nhìn lại những điều đôi tai bạn đã học được.';
   if (view === 'progress') renderProgress();
+  else {
+    const target = state.phase === 'awaiting' ? $('piano').querySelector('button:not(:disabled)') : state.phase === 'answered' ? $('next-question') : $('start-session');
+    target?.focus({ preventScroll: true });
+  }
 }
 $('exercise-body').addEventListener('click', event => {
   const button = event.target.closest('button'); if (!button || button.disabled) return;

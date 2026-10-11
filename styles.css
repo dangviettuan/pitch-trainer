@@ -179,3 +179,6 @@ button:focus-visible, select:focus-visible, .piano-scroll:focus-visible { outlin
   .session-active main { overflow: visible; }
   .session-active .practice-card { min-height: 250px; }
 }
+
+.piano-key.white.correct-key.wrong-key { background: #e2ebd8; }
+.piano-key.black.correct-key.wrong-key { background: #69805a; }
