@@ -182,3 +182,10 @@ button:focus-visible, select:focus-visible, .piano-scroll:focus-visible { outlin
 
 .piano-key.white.correct-key.wrong-key { background: #e2ebd8; }
 .piano-key.black.correct-key.wrong-key { background: #69805a; }
+@media (min-width: 641px) and (max-width: 1000px) and (max-height: 500px) {
+  .session-active .answered-space .session-meta { font-size: 11px; line-height: 1.35; gap: 4px 8px; margin-bottom: 4px; }
+  .session-active .answered-space .button-row { flex-wrap: nowrap; align-items: stretch; gap: 4px; }
+  .session-active .answered-space .primary-button,
+  .session-active .answered-space .secondary-button { flex: 1; min-width: 0; font-size: 11px; padding: 8px 5px; line-height: 1.35; gap: 4px; }
+  .session-active .answered-space .secondary-button svg { flex: none; }
+}

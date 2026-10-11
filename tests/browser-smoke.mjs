@@ -122,6 +122,11 @@ let browser, page;
  await page.click('#submit-melody');
  assert.equal(await page.locator('.review-note.mismatch').count(),3);
  assert.equal(await page.locator('.piano-key.wrong-key').count(),2, 'wrong melody positions are shown even when note identities overlap');
+ const feedbackPane=await page.locator('.practice-card').boundingBox();
+ for(const chip of await page.locator('.review-note').all()) {
+  const box=await chip.boundingBox();
+  assert(box.y>=feedbackPane.y && box.y+box.height<=feedbackPane.y+feedbackPane.height, 'melody position feedback stays inside the question pane');
+ }
  await page.screenshot({path:'test-results/landscape-feedback.png'});
  await page.click('#end-session'); await page.click('#reset-session');
  await page.selectOption('#mode','note'); await page.click('#start-session');
