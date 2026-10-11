@@ -99,6 +99,9 @@ export function summarize(profile) {
     if (attempts[index].assisted || !attempts[index].correct) break;
     streak++;
   }
+  const practiceCorrect = attempts.filter(attempt => attempt.correct).length;
+  let practiceStreak = 0;
+  for (let index = attempts.length - 1; index >= 0 && attempts[index].correct; index--) practiceStreak++;
   const weakNotes = [...noteEvidence(scored).values()].map(stat => ({
     midi: stat.midi, name: noteName(stat.midi), attempts: stat.attempts, mistakes: stat.mistakes,
     accuracy: (stat.attempts - stat.mistakes) / stat.attempts,
@@ -114,6 +117,8 @@ export function summarize(profile) {
     accuracy: scored.length ? correct / scored.length : null,
     averageMs: times.length ? times.reduce((sum, time) => sum + time, 0) / times.length : null,
     assisted: attempts.length - scored.length, streak, weakNotes, byMode,
+    practiceCorrect, practiceStreak,
+    practiceAccuracy: attempts.length ? practiceCorrect / attempts.length : null,
   };
 }
 

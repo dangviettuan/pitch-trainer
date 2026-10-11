@@ -132,3 +132,17 @@ test('response-time summary includes only correct unassisted answers', () => {
   profile = recordAttempt(profile, { question: { mode: 'note', notes: [60] }, answer: [60], elapsedMs: 8000, assisted: true });
   assert.equal(summarize(profile).averageMs, 1200);
 });
+
+
+test('practice counts assisted answers while unassisted measurement stays distinct', () => {
+  let profile = recordAttempt(emptyProfile(), { question: { mode: 'note', notes: [60] }, answer: [62], elapsedMs: 1000 });
+  profile = recordAttempt(profile, { question: { mode: 'note', notes: [60] }, answer: [60], elapsedMs: 1000, assisted: true });
+  let summary = summarize(profile);
+  assert.equal(summary.practiceAccuracy, 0.5);
+  assert.equal(summary.accuracy, 0);
+  assert.equal(summary.practiceStreak, 1);
+  assert.equal(summary.streak, 0);
+  summary = summarize({ version: 1, attempts: [profile.attempts[1]] });
+  assert.equal(summary.practiceAccuracy, 1);
+  assert.equal(summary.accuracy, null);
+});

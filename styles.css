@@ -2,7 +2,7 @@
 @media(min-width:1500px){main{padding-left:65px;padding-right:65px}.practice-card{min-height:430px}.piano{height:166px}.piano-key.white{height:158px}.piano-key.black{height:101px}}@media(max-width:1150px){.app-shell{grid-template-columns:180px minmax(0,1fr)}.sidebar{padding:35px 18px 25px}main{padding:35px 30px 23px}.practice-grid{grid-template-columns:minmax(0,1fr) 228px;gap:17px}.practice-card{padding:22px}.settings-card{padding:22px 17px}.header-badge{display:none}.stat{padding:16px;gap:12px}.listen-space h3{font-size:20px}.piano-card{padding:22px}.piano{--white-width:57px;--black-width:34px}}@media(max-width:900px){.app-shell{grid-template-columns:150px minmax(0,1fr)}.sidebar{padding:28px 13px}.brand{gap:4px;font-size:19px}.brand-icon{width:31px}.brand-icon svg{width:30px}.brand-subtitle{font-size:7px;letter-spacing:1.6px}.nav-item{padding:12px 10px;font-size:10px;gap:9px}.sidebar-note{font-size:8px}.sidebar-note p{font-size:9px}.privacy-note{font-size:7px}main{padding:30px 22px 20px}.practice-grid{grid-template-columns:minmax(0,1fr)}.settings-card{padding:20px}.settings-heading{margin-bottom:15px}#settings-fields{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0 14px}.control-label{grid-row:1;margin:0 0 8px!important}#mode,#range,#timbre{grid-row:2}.toggle-row{margin:16px 0 0}.settings-note{margin:15px 0 0;padding-top:10px}.practice-card{min-height:373px}.stats-row{gap:10px;margin-bottom:21px}.stat{padding:14px 12px;gap:10px}.stat strong{font-size:20px}.stat div>span{font-size:8px}.stat-icon{width:29px;height:29px}.stat-icon svg{width:17px;height:17px}.page-header{margin-bottom:25px}h1{font-size:29px}.eyebrow{font-size:7px;letter-spacing:1.3px}.note-progress-list{grid-template-columns:repeat(3,1fr)}}@media(max-width:640px){.app-shell{display:block}.sidebar{height:auto;position:relative;padding:19px 21px 12px;border-right:0;border-bottom:1px solid var(--line);flex-direction:row;align-items:center;justify-content:space-between}.brand{font-size:18px;gap:7px}.brand-icon{width:27px;height:31px}.brand-icon svg{width:29px;height:29px}.brand-subtitle{font-size:6px;letter-spacing:1.5px}.nav-links{margin:0;display:flex;gap:3px}.nav-item{font-size:10px;padding:10px 11px;gap:6px}.nav-item svg{width:15px;height:15px}.nav-dot,.sidebar-note,.privacy-note{display:none}main{padding:28px 19px 19px}.page-header{margin-bottom:24px}.eyebrow{font-size:6.5px;letter-spacing:1.2px;margin-bottom:12px}h1{font-size:29px;letter-spacing:-1.1px}.page-description{font-size:10px;margin-top:9px}.stats-row{gap:7px;margin-bottom:19px}.stat{display:block;padding:13px 12px;border-radius:8px;position:relative}.stat-icon{position:absolute;right:8px;top:12px;width:20px;height:20px;background:transparent;opacity:.6}.stat-icon svg{width:15px;height:15px}.stat strong{font-size:21px}.stat div>span{font-size:7px;line-height:1.5;margin-top:7px}.practice-grid{gap:16px;margin-bottom:16px}.practice-card{padding:21px 19px 18px;min-height:388px;border-radius:10px}.card-heading{gap:10px}h2{font-size:14px}.section-kicker{font-size:7px;margin-bottom:7px}.session-count{font-size:8px;padding:6px 8px}.listen-space{padding-top:27px;min-height:290px}.listen-space h3{font-size:20px}.listen-space p{font-size:10px;max-width:270px}.waveform{margin-bottom:23px}.card-bottom{font-size:8px;gap:8px}.settings-card{padding:19px; border-radius:10px}.settings-heading{margin-bottom:17px}#settings-fields{grid-template-columns:1fr 1fr;gap:0 13px}.control-label{grid-row:auto!important}.control-label[for=mode]{grid-column:1}.control-label[for=range]{grid-column:2;grid-row:1!important}#mode,#range{grid-row:2}#timbre{grid-row:4;grid-column:1}.control-label[for=timbre]{grid-column:1;grid-row:3!important;margin-top:15px!important}.toggle-row{font-size:9px;align-self:center;min-height:28px}.toggle-row:has(#accidentals){grid-row:4;grid-column:2;margin-top:0}.toggle-row:has(#labels){grid-row:5;grid-column:1}.toggle-row:has(#challenge){grid-row:5;grid-column:2}.control-hint{font-size:7px}.settings-note{font-size:8px}.piano-card{padding:20px 16px 14px;border-radius:10px}.piano-heading{align-items:flex-start;gap:12px;margin-bottom:21px}.piano-heading h2{font-size:12px}.piano-heading p{font-size:8px;max-width:170px;line-height:1.6}.keyboard-option{font-size:7px;gap:4px;max-width:100px;white-space:normal;line-height:1.5}.keyboard-option input{flex-shrink:0}.piano{--white-width:47px;--black-width:28px;height:133px}.piano.single-octave{--white-width:min(47px,calc((100vw - 76px)/8));--black-width:calc(var(--white-width) * .595)}.piano-key.white{height:126px;padding-bottom:13px}.piano-key.black{height:79px}.piano-key.white .note-solfege{font-size:9px}.piano-key.white{font-size:8px}.piano-key.black .note-solfege{font-size:7px}.piano-footer{font-size:7px;gap:8px}.piano-footer button{font-size:7px}.piano-footer>span:nth-child(2){font-size:6.5px}.practice-tip{gap:12px;align-items:flex-start;padding-top:22px}.tip-label{font-size:6.5px;padding-top:3px;max-width:65px;line-height:1.6}.practice-tip p{font-size:8px;max-width:none;flex:1}.tip-decoration{font-size:24px}.page-footer{font-size:6.5px;line-height:1.7;margin-top:14px;padding-top:17px;align-items:flex-start}.page-footer>span:last-child{max-width:130px;text-align:right}.footer-dot{padding:0 4px}.progress-panel{padding:22px 17px}.progress-panel .text-button{font-size:8px}.note-progress-list{grid-template-columns:repeat(2,1fr)}.data-actions{align-items:flex-start}.data-actions p{font-size:8px}.feedback{padding:13px 11px;gap:11px}.feedback p{font-size:9px}.feedback strong{font-size:11px}.answered-space{min-height:280px;padding-top:21px}.result-metrics{gap:24px}.result-metrics strong{font-size:22px}.result-metrics span{font-size:8px}.results-space h3{font-size:20px}.results-space>p{font-size:9px}.button-row{gap:8px}.secondary-button{font-size:10px;padding:10px 11px}.primary-button{font-size:10px;padding:11px 15px}.empty-progress{padding:43px 7px}.empty-progress h3{font-size:16px}.empty-progress p{font-size:10px}}@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
 
 /* Comfortable reading and controls on a phone. */
-@media (max-width: 640px) {
+@media (max-width: 640px), (max-height: 500px) and (max-width: 1000px) {
   body { font-size: 14px; }
   .sidebar { display: grid; grid-template-columns: 1fr; gap: 14px; padding: 18px 19px 14px; }
   .brand { font-size: 20px; gap: 10px; min-height: 44px; }
@@ -91,7 +91,7 @@
   .empty-progress h3 { font-size: 20px; line-height: 1.6; }
   .empty-progress p { font-size: 14px; line-height: 1.8; }
 }
-@media (max-width: 640px) {
+@media (max-width: 640px), (max-height: 500px) and (max-width: 1000px) {
   #practice-view { display: flex; flex-direction: column; gap: 16px; }
   .practice-grid { display: contents; }
   .practice-card { order: 1; }
@@ -116,10 +116,11 @@
 }
 
 /* Keep the listening controls and piano in one phone viewport, including browser chrome. */
-@media (max-width: 640px) {
+@media (max-width: 640px), (max-height: 500px) and (max-width: 1000px) {
   body.session-active { height: 100dvh; overflow: hidden; }
   .session-active .app-shell { height: 100dvh; min-height: 0; display: flex; flex-direction: column; }
-  .session-active .sidebar { flex: none; padding: 6px 12px; }
+  .session-active .sidebar { flex: none; height: auto; position: relative; border-right: 0; border-bottom: 1px solid var(--line); padding: 6px 12px; }
+  .session-active .nav-links { margin: 0; }
   .session-active main { flex: 1; min-height: 0; margin: 0; padding: 8px 12px max(8px, env(safe-area-inset-bottom)); overflow: hidden; }
   .session-active #practice-view { height: 100%; min-height: 0; gap: 8px; }
   .session-active .practice-card { flex: 1; min-height: 0; padding: 12px; overflow-y: auto; overscroll-behavior: contain; }
@@ -143,4 +144,38 @@
   .session-active .session-meta { margin-bottom: 8px; }
   .session-active .selection-sequence { margin: 4px 0 10px; }
   .session-active .mini-badge { margin-bottom: 6px; }
+}
+
+/* Feedback explains the correction without changing the recorded answer. */
+.melody-review { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; margin: 0 0 10px; }
+.review-note { padding: 6px 9px; border: 1px solid #c8d7bd; border-radius: 6px; font-size: 12px; background: #f0f5eb; }
+.review-note small { display: block; font-size: 11px; margin-bottom: 3px; }
+.review-note.mismatch { border-color: #cfaa88; background: #faf0e5; }
+.piano-key.wrong-key { box-shadow: inset 0 0 0 3px #a56b38; }
+.correction-hint { color: #715a43 !important; }
+button:focus-visible, select:focus-visible, .piano-scroll:focus-visible { outline: 3px solid #496246; outline-offset: 3px; }
+@media (max-width: 640px), (max-height: 500px) and (max-width: 1000px) {
+  .session-active .listen-space > .text-button { order: 2; }
+  .session-active .listen-space > .button-row { position: sticky; bottom: 0; background: var(--card); padding: 6px 0; z-index: 1; }
+  .session-active .feedback strong { font-size: 13px; }
+  .session-active .card-heading { flex-wrap: wrap; }
+}
+@media (min-width: 641px) and (max-width: 1000px) and (max-height: 500px) {
+  .session-active .sidebar { padding: 4px 12px; }
+  .session-active .nav-links { width: 100%; max-width: 380px; margin: auto; }
+  .session-active #practice-view { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: stretch; }
+  .session-active .practice-card { order: 0; height: 100%; }
+  .session-active .piano-card { order: 0; align-self: end; padding: 12px; }
+  .session-active .piano.single-octave { --white-width: calc((50vw - 46px) / 8); }
+  .session-active .listen-space { padding-top: 8px; }
+  .session-active .listen-space h3 { font-size: 18px; }
+  .session-active .button-row { gap: 6px; }
+  .session-active .primary-button, .session-active .secondary-button { padding: 10px; font-size: 12px; }
+}
+/* Very short viewports and zoom keep a scrolling escape instead of clipping controls. */
+@media (max-height: 340px) {
+  body.session-active { height: auto; overflow: auto; }
+  .session-active .app-shell { height: auto; min-height: 100dvh; }
+  .session-active main { overflow: visible; }
+  .session-active .practice-card { min-height: 250px; }
 }
