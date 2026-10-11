@@ -113,7 +113,7 @@ function updatePianoState() {
     button.classList.toggle('wrong-key', state.phase === 'answered' && !state.attempt.correct && state.attempt.answer.includes(midi) && !state.question.answer.includes(midi));
   }
 }
-function render() { syncSettings(); renderStats(); renderExercise(); }
+function render() { document.body.classList.toggle('session-active', isActive()); syncSettings(); renderStats(); renderExercise(); }
 function audioError() { state.error = 'Không thể phát âm thanh. Kiểm tra âm lượng và quyền âm thanh của trình duyệt, rồi bấm nghe lại.'; announce(state.error); }
 async function playTarget(assisted = false) {
   if (!state.question || state.phase === 'answered' || state.phase === 'results' || state.phase === 'listening') return;

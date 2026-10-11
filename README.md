@@ -31,4 +31,4 @@ Before the first workflow run, go to **Settings → Pages** and set the build an
 - `npm test` runs Node's built-in test runner over `tests/*.test.js`.
 - CI also runs `tests/browser-smoke.mjs` in Chromium: a complete 10-question session, all three modes, replay scoring, persistence, mobile overflow, and offline gameplay under the Pages subpath. To run it locally, install Playwright 1.62.1 and Chromium, serve this folder from its parent on port 4173, then run `node tests/browser-smoke.mjs`. Set `PITCH_BASE_URL` if serving at a different URL.
 - Keep deployable asset URLs relative so the app works under the repository subpath on GitHub Pages.
-- Update the service worker cache version when changing the shell's cache policy or asset layout.
+- Bump both service worker cache versions whenever deploying updated app assets, so offline clients receive the new code and styling.

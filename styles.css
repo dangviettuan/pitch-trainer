@@ -91,3 +91,18 @@
   .empty-progress h3 { font-size: 20px; line-height: 1.6; }
   .empty-progress p { font-size: 14px; line-height: 1.8; }
 }
+@media (max-width: 640px) {
+  #practice-view { display: flex; flex-direction: column; gap: 16px; }
+  .practice-grid { display: contents; }
+  .practice-card { order: 1; }
+  .piano-card { order: 2; }
+  .settings-card { order: 3; }
+  .practice-tip { order: 4; }
+  .session-active .page-header, .session-active .stats-row, .session-active .sidebar .brand { display: none; }
+  .session-active .sidebar { padding: 10px 19px; gap: 0; }
+  .session-active main { padding-top: 16px; }
+  .session-active .practice-card { min-height: 0; padding-top: 17px; }
+  .session-active .listen-space { min-height: 230px; padding-top: 12px; }
+  .session-active .waveform { margin-bottom: 10px; height: 48px; }
+  .session-active .listen-space h3 { margin-top: 8px; }
+}

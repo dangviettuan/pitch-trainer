@@ -15,6 +15,9 @@ await mkdir('test-results', { recursive: true });
  await page.click('#start-session');
  await page.waitForFunction(()=>!document.querySelector('[data-midi="60"]').disabled);
  assert(await page.locator('#mode').isDisabled());
+ const pianoBounds = await page.locator('[data-midi="60"]').boundingBox();
+ assert(pianoBounds.y + pianoBounds.height <= 844, 'active piano fits the phone screen');
+ await page.screenshot({path:'test-results/mobile-active.png',fullPage:true});
  for(let i=0;i<10;i++){
   await page.waitForFunction(()=>!document.querySelector('[data-midi="60"]').disabled);
   await page.click('[data-midi="60"]');
