@@ -28,6 +28,8 @@ let browser;
   await assertKeyboardVisible();
   const replay = await page.locator('#replay-target').boundingBox();
   assert(replay.y >= 0 && replay.y + replay.height <= viewport.height, 'listen button is onscreen');
+  const key = await page.locator('[data-midi="60"]').boundingBox();
+  assert(key.y - (replay.y + replay.height) <= 140, 'listen and piano controls stay close');
  }
  await page.setViewportSize({width:390,height:660});
  await page.screenshot({path:'test-results/mobile-active.png',fullPage:false});
