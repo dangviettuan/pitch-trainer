@@ -127,8 +127,8 @@
   .session-active .settings-card, .session-active .practice-tip, .session-active .page-footer, .session-active .sidebar-note, .session-active .privacy-note, .session-active .nav-dot { display: none; }
   .session-active .section-kicker { display: none; }
   .session-active .session-progress { margin-top: 8px; }
-  .session-active #exercise-body { min-height: 0; }
-  .session-active .listen-space { min-height: 0; padding: 12px 0 8px; justify-content: flex-end; }
+  .session-active #exercise-body { min-height: 0; flex: 1 0 auto; }
+  .session-active .listen-space { min-height: 0; flex: 1 0 auto; padding: 12px 0 8px; justify-content: flex-end; }
   .session-active .listen-space h3 { margin: 0 0 6px; font-size: 20px; }
   .session-active .listen-space > p { margin-bottom: 10px; }
   .session-active .listen-space > p.micro-note { margin-top: 6px !important; font-size: 11px !important; }
