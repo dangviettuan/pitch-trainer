@@ -123,3 +123,12 @@ test('audio cancellation during context resume prevents scheduling stale sound',
     globalThis.AudioContext = previous;
   }
 });
+
+
+test('response-time summary includes only correct unassisted answers', () => {
+  let profile = emptyProfile();
+  profile = recordAttempt(profile, { question: { mode: 'note', notes: [60] }, answer: [60], elapsedMs: 1200 });
+  profile = recordAttempt(profile, { question: { mode: 'note', notes: [60] }, answer: [62], elapsedMs: 9000 });
+  profile = recordAttempt(profile, { question: { mode: 'note', notes: [60] }, answer: [60], elapsedMs: 8000, assisted: true });
+  assert.equal(summarize(profile).averageMs, 1200);
+});
