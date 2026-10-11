@@ -1,6 +1,6 @@
 const CACHE_PREFIX = 'pitch-trainer-';
-const SHELL_CACHE = `${CACHE_PREFIX}shell-v6`;
-const ASSET_CACHE = `${CACHE_PREFIX}assets-v6`;
+const SHELL_CACHE = `${CACHE_PREFIX}shell-v7`;
+const ASSET_CACHE = `${CACHE_PREFIX}assets-v7`;
 const APP_SHELL_FILES = [
   './',
   './index.html',
@@ -58,7 +58,7 @@ self.addEventListener('fetch', (event) => {
   event.respondWith((async () => {
     const cache = await caches.open(ASSET_CACHE);
     const shell = await caches.open(SHELL_CACHE);
-    const cached = (await cache.match(request)) || (await shell.match(request));
+    const cached = (await cache.match(request)) || (await shell.match(request, { ignoreSearch: true }));
     if (cached) return cached;
 
     const response = await fetch(request);
