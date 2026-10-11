@@ -201,6 +201,7 @@ function flashKey(midi) {
   key.classList.add('pressed'); setTimeout(() => key.classList.remove('pressed'), 200);
 }
 function chooseNote(midi) {
+  if ($('settings-dialog').open) return;
   if (!notePool(settings.range, settings.accidentals).includes(midi)) return;
   if (state.phase === 'idle' || state.phase === 'results') {
     flashKey(midi);

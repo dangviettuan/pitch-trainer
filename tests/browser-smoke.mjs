@@ -183,6 +183,13 @@ function sameGeometry(actual, expected, label) {
  console.log('PASS: initial idle, start, hear, feedback, next, and retained results piano stable at five phone viewports without scrolling, 10-round session, interval, ordered melody, replay scoring, dark keys, persistence, subpath offline audio/gameplay, mobile overflow, no page errors');
  await context.setOffline(false);await page.close();
  const desktop=await context.newPage();await desktop.setViewportSize({width:1440,height:1000});await desktop.goto(baseURL);await desktop.screenshot({path:'test-results/desktop.png',fullPage:true});
+ await desktop.check('#computer-keyboard');
+ await desktop.click('#open-settings');
+ await desktop.keyboard.press('a');
+ assert.equal(await desktop.locator('.piano-key.pressed').count(),0, 'keyboard input respects the settings dialog');
+ await desktop.click('#close-settings');
+ await desktop.keyboard.press('a');
+ assert.equal(await desktop.locator('.piano-key.pressed').count(),1, 'keyboard audition resumes after settings close');
  const learner = await browser.newContext({viewport:{width:844,height:390}});
  await learner.addInitScript(()=>{Math.random=()=>0});
  page=await learner.newPage();page.on('pageerror',e=>errors.push(e.message)); await page.goto(baseURL);
