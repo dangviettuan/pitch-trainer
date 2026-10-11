@@ -124,7 +124,7 @@
   .session-active main { flex: 1; min-height: 0; margin: 0; padding: 8px 12px max(8px, env(safe-area-inset-bottom)); overflow: hidden; }
   .session-active #practice-view { height: 100%; min-height: 0; gap: 8px; }
   .session-active .practice-card { flex: 1; min-height: 0; padding: 12px; overflow-y: auto; overscroll-behavior: contain; }
-  .session-active .settings-card, .session-active .practice-tip, .session-active .page-footer { display: none; }
+  .session-active .settings-card, .session-active .practice-tip, .session-active .page-footer, .session-active .sidebar-note, .session-active .privacy-note, .session-active .nav-dot { display: none; }
   .session-active .section-kicker { display: none; }
   .session-active .session-progress { margin-top: 8px; }
   .session-active #exercise-body { min-height: 0; }
@@ -133,7 +133,7 @@
   .session-active .listen-space > p { margin-bottom: 10px; }
   .session-active .listen-space > p.micro-note { margin-top: 6px !important; font-size: 11px !important; }
   .session-active .listen-space > .button-row { order: 1; margin-top: 8px; }
-  .session-active .card-bottom { flex: none; padding-top: 4px; }
+  .session-active .card-bottom { order: -1; flex: none; border-top: 0; padding-top: 0; }
   .session-active .end-session { min-height: 36px; padding: 6px 8px; }
   .session-active .piano-card { flex: none; padding: 10px 12px 6px; margin: 0; }
   .session-active .piano-heading { margin-bottom: 6px; }
@@ -163,7 +163,7 @@ button:focus-visible, select:focus-visible, .piano-scroll:focus-visible { outlin
 @media (min-width: 641px) and (max-width: 1000px) and (max-height: 500px) {
   .session-active .sidebar { padding: 4px 12px; }
   .session-active .nav-links { width: 100%; max-width: 380px; margin: auto; }
-  .session-active #practice-view { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); align-items: stretch; }
+  .session-active #practice-view { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-rows: minmax(0, 1fr); align-items: stretch; }
   .session-active .practice-card { order: 0; height: 100%; }
   .session-active .piano-card { order: 0; align-self: end; padding: 12px; }
   .session-active .piano.single-octave { --white-width: calc((50vw - 46px) / 8); }
