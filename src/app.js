@@ -113,7 +113,7 @@ function updatePianoState() {
     button.classList.toggle('wrong-key', state.phase === 'answered' && !state.attempt.correct && state.attempt.answer.includes(midi) && !state.question.answer.includes(midi));
   }
 }
-function render() { document.body.classList.toggle('session-active', isActive()); syncSettings(); renderStats(); renderExercise(); }
+function render() { document.body.classList.toggle('session-active', isActive() && state.view === 'practice'); syncSettings(); renderStats(); renderExercise(); }
 function audioError() { state.error = 'Không thể phát âm thanh. Kiểm tra âm lượng và quyền âm thanh của trình duyệt, rồi bấm nghe lại.'; announce(state.error); }
 async function playTarget(assisted = false) {
   if (!state.question || state.phase === 'answered' || state.phase === 'results' || state.phase === 'listening') return;
@@ -145,7 +145,11 @@ function newQuestion() {
   render();
   void playTarget();
 }
-function startSession() { if (isActive()) return; state.session = []; state.index = 0; newQuestion(); }
+function startSession() {
+  if (isActive()) return;
+  state.session = []; state.index = 0; newQuestion();
+  if (matchMedia('(max-width: 640px)').matches) window.scrollTo({ top: 0, left: 0, behavior: 'instant' });
+}
 async function playReference() {
   if (state.phase !== 'awaiting' || settings.challenge || settings.mode !== 'note') return;
   const token = ++playbackToken;
@@ -210,6 +214,7 @@ function renderProgress() {
 }
 function showView(view) {
   state.view = view;
+  document.body.classList.toggle('session-active', isActive() && view === 'practice');
   $('practice-view').hidden = view !== 'practice'; $('progress-view').hidden = view !== 'progress';
   $('practice-tab').classList.toggle('selected', view === 'practice'); $('progress-tab').classList.toggle('selected', view === 'progress');
   $('practice-tab').toggleAttribute('aria-current', view === 'practice'); $('progress-tab').toggleAttribute('aria-current', view === 'progress');
@@ -272,6 +277,11 @@ document.addEventListener('visibilitychange', () => {
 });
 syncSettings(); renderPiano(); render();
 if ('serviceWorker' in navigator) {
+  // An already-open, idle app should pick up a new deployment without retaining the old layout.
+  const hadController = Boolean(navigator.serviceWorker.controller);
+  navigator.serviceWorker.addEventListener('controllerchange', () => {
+    if (hadController && state.phase === 'idle') location.reload();
+  });
   window.addEventListener('load', () => {
     navigator.serviceWorker.register(new URL('../sw.js', import.meta.url)).catch(() => {
       announce('Chưa thể bật chế độ offline. Bạn vẫn có thể luyện khi có mạng.');

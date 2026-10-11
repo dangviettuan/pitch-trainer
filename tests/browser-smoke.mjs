@@ -6,7 +6,7 @@ await mkdir('test-results', { recursive: true });
 let browser;
 (async()=>{
  browser=await chromium.launch({headless:true});
- const context=await browser.newContext({viewport:{width:390,height:844}});
+ const context=await browser.newContext({viewport:{width:390,height:660}});
  await context.addInitScript(()=>{Math.random=()=>0});
  const page=await context.newPage(); const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto(baseURL);
@@ -16,10 +16,23 @@ let browser;
  await page.click('#start-session');
  await page.waitForFunction(()=>!document.querySelector('[data-midi="60"]').disabled);
  assert(await page.locator('#mode').isDisabled());
- const pianoBounds = await page.locator('[data-midi="60"]').boundingBox();
- await page.screenshot({path:'test-results/mobile-active.png',fullPage:true});
- console.log('Active phone piano:', pianoBounds);
- assert(pianoBounds.y + pianoBounds.height <= 844, 'active piano fits the phone screen');
+ async function assertKeyboardVisible(note=60) {
+  const box = await page.locator(`[data-midi="${note}"]`).boundingBox();
+  const viewport = page.viewportSize();
+  assert(box.y >= 0 && box.y + box.height <= viewport.height,
+    `piano stays onscreen at ${viewport.width}x${viewport.height}: ${JSON.stringify(box)}`);
+  assert(await page.evaluate(()=>document.documentElement.scrollHeight<=innerHeight), 'practice does not require page scrolling');
+ }
+ for (const viewport of [{width:320,height:568},{width:360,height:640},{width:390,height:660},{width:430,height:740}]) {
+  await page.setViewportSize(viewport);
+  await assertKeyboardVisible();
+  const replay = await page.locator('#replay-target').boundingBox();
+  assert(replay.y >= 0 && replay.y + replay.height <= viewport.height, 'listen button is onscreen');
+ }
+ await page.setViewportSize({width:390,height:660});
+ await page.screenshot({path:'test-results/mobile-active.png',fullPage:false});
+ await page.click('#progress-tab'); await page.click('#back-to-practice');
+ await assertKeyboardVisible();
  for(let i=0;i<10;i++){
   await page.waitForFunction(()=>!document.querySelector('[data-midi="60"]').disabled);
   await page.click('[data-midi="60"]');
@@ -30,9 +43,11 @@ let browser;
  assert.equal(await page.locator('#accuracy-stat').innerText(),'100%');
  await page.click('#reset-session');await page.selectOption('#mode','interval');
  await page.click('#start-session');await page.waitForFunction(()=>!document.querySelector('[data-midi="62"]').disabled);
+ await assertKeyboardVisible(62);
  await page.click('[data-midi="62"]'); assert((await page.locator('#exercise-body').innerText()).includes('Đúng rồi'));
  await page.click('#end-session');await page.click('#reset-session');await page.selectOption('#mode','melody');
  await page.click('#start-session');await page.waitForFunction(()=>!document.querySelector('[data-midi="60"]').disabled);
+ await assertKeyboardVisible();
  for(const n of [60,62,60]) await page.click(`[data-midi="${n}"]`);
  await page.click('#submit-melody');assert((await page.locator('#exercise-body').innerText()).includes('Đúng rồi'));
  await page.click('#end-session');await page.click('#reset-session');await page.selectOption('#mode','note');
@@ -66,7 +81,7 @@ let browser;
  assert(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth));
  await page.screenshot({path:'test-results/mobile-360.png',fullPage:true});
  assert.deepEqual(errors,[]);
- console.log('PASS: 10-round session, interval, ordered melody, replay scoring, dark keys, persistence, subpath offline audio/gameplay, mobile overflow, no page errors');
+ console.log('PASS: phone viewport 320–430px without page scrolling, 10-round session, interval, ordered melody, replay scoring, dark keys, persistence, subpath offline audio/gameplay, mobile overflow, no page errors');
  await context.setOffline(false);await page.close();
  const desktop=await context.newPage();await desktop.setViewportSize({width:1440,height:1000});await desktop.goto(baseURL);await desktop.screenshot({path:'test-results/desktop.png',fullPage:true});
  await browser.close();
