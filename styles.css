@@ -105,4 +105,12 @@
   .session-active .listen-space { min-height: 230px; padding-top: 12px; }
   .session-active .waveform { margin-bottom: 10px; height: 48px; }
   .session-active .listen-space h3 { margin-top: 8px; }
+  .session-active .listen-space > .waveform { display: none; }
+  .session-active .listen-space > p { margin-bottom: 12px; font-size: 12px; line-height: 1.6; }
+  .session-active .listen-space > p.micro-note { font-size: 11px; line-height: 1.45; margin: 8px 0 0; }
+  .session-active .listen-space > .micro-note + .micro-note { display: none; }
+  .session-active .card-bottom > span { display: none; }
+  .session-active .card-bottom { justify-content: flex-end; padding-top: 8px; }
+  .session-active .piano-heading { margin-bottom: 12px; }
+  .session-active .piano-heading p, .session-active .keyboard-option { display: none; }
 }
