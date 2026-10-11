@@ -24,6 +24,8 @@ async function visibleBox(target, selector, label) {
  return box;
 }
 async function pianoGeometry(target, phase) {
+ // Measure layout after the intentional key-press animation returns to rest.
+ await target.waitForFunction(() => [...document.querySelectorAll('.piano-key')].every(key => !key.classList.contains('pressed') && getComputedStyle(key).transform === 'none'));
  assert.equal(await target.locator('.piano-key.white').count(), 8, `${phase} retains all eight white keys`);
  const boxes = [];
  for (const key of await target.locator('.piano-key').all()) {
