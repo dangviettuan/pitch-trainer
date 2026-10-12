@@ -8,7 +8,7 @@
     <title>Pitch — Luyện nghe cao độ</title>
     <link rel="manifest" href="./manifest.webmanifest" />
     <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Crect width='40' height='40' rx='12' fill='%23526a56'/%3E%3Cpath d='M12 28V12h16v16M17 12v16M23 12v16' fill='none' stroke='%23fff' stroke-width='2'/%3E%3C/svg%3E" />
-    <link rel="stylesheet" href="./styles.css?v=15" />
+    <link rel="stylesheet" href="./styles.css?v=16" />
   </head>
   <body>
     <div class="app-shell">
@@ -55,12 +55,13 @@
               <fieldset id="settings-fields">
                 <label class="control-label" for="mode">Kiểu luyện tập</label><select id="mode"><option value="note">Nốt đơn</option><option value="interval">Quãng — tìm nốt thứ hai</option><option value="melody">Giai điệu — 3 nốt</option></select>
                 <label class="control-label" for="range">Phạm vi nốt</label><select id="range"><option value="C4-C5">C4 – C5 · Một quãng tám</option><option value="C3-C5">C3 – C5 · Âm vực thấp</option><option value="C4-C6">C4 – C6 · Âm vực cao</option></select>
-                <label class="control-label" for="timbre">Âm thanh</label><select id="timbre"><option value="piano">Piano</option><option value="sine">Sóng sin · Âm thuần</option></select>
+                <label class="control-label" for="timbre">Âm thanh</label><select id="timbre"><option value="piano">Piano · Mẫu thu đàn thật</option><option value="sine">Sóng sin · Âm thuần</option></select>
                 <label class="toggle-row"><span>Nốt thăng / giáng<span class="control-hint">Bao gồm phím đen</span></span><input id="accidentals" type="checkbox" role="switch" /><span class="switch" aria-hidden="true"></span></label>
                 <label class="toggle-row"><span>Hiện tên nốt</span><input id="labels" type="checkbox" role="switch" checked /><span class="switch" aria-hidden="true"></span></label>
                 <label class="toggle-row"><span>Chế độ thử thách<span class="control-hint">Nghe một lần, không nốt mẫu</span></span><input id="challenge" type="checkbox" role="switch" /><span class="switch" aria-hidden="true"></span></label>
               </fieldset>
               <p class="settings-note" id="settings-note">Các nốt cần luyện thêm sẽ xuất hiện thường hơn.</p>
+              <p class="audio-credit">Âm piano: <a href="https://github.com/Tonejs/audio/tree/master/salamander" target="_blank" rel="noopener">Salamander · Alexander Holm</a> · <a href="https://creativecommons.org/licenses/by/3.0/" target="_blank" rel="noopener">CC BY 3.0</a>. Mẫu gốc được giữ nguyên; điều chỉnh cao độ khi phát.</p>
             </dialog>
           </div>
           <div class="practice-tip"><span class="tip-label">MỘT GỢI Ý NHỎ</span><p id="practice-tip-text">Bắt đầu với một quãng tám. Hát thầm nốt vừa nghe trước khi chọn phím.</p><span class="tip-decoration" aria-hidden="true">♩</span></div>
@@ -70,6 +71,6 @@
       </main>
     </div>
     <div class="sr-only" id="announcement" role="status" aria-live="polite" aria-atomic="true"></div>
-    <script type="module" src="./src/app.js?v=15"></script>
+    <script type="module" src="./src/app.js?v=16"></script>
   </body>
 </html>

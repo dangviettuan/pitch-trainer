@@ -22,8 +22,9 @@ const settings = {
   challenge: rawSettings.challenge === true,
   computerKeyboard: rawSettings.computerKeyboard === true,
 };
-const state = { phase: 'idle', question: null, index: 0, session: [], selected: [], assisted: false, heard: false, startedAt: 0, attempt: null, error: '', playbackBusy: false, view: 'practice' };
+const state = { phase: 'idle', question: null, index: 0, session: [], selected: [], assisted: false, heard: false, startedAt: 0, attempt: null, error: '', playbackBusy: false, audioLoading: false, view: 'practice' };
 let playbackToken = 0;
+let preparedPianoRange = null;
 let midiAccess = null;
 let clearArmed = false;
 let clearTimer = null;
@@ -90,7 +91,7 @@ function renderExercise() {
     const instructions = { note: 'Chọn một phím trên đàn để trả lời.', interval: `Nốt mốc: ${formatNotes([state.question.notes[0]])}. Chọn riêng nốt thứ hai.`, melody: 'Chọn 3 phím theo thứ tự, rồi xác nhận.' };
     const ready = state.phase === 'ready';
     const melodySelection = settings.mode === 'melody' ? `<div class="selection-sequence" aria-label="Các nốt bạn đã chọn">${[0, 1, 2].map(i => `<span class="note-slot ${state.selected[i] === undefined ? 'empty' : ''}">${state.selected[i] === undefined ? '·' : noteName(state.selected[i]).replace('#', '♯')}</span>`).join('')}</div>` : '';
-    content = `<div class="listen-space">${waveform(listening)}${state.assisted ? '<span class="mini-badge">Có nghe lại / nốt mẫu</span>' : ''}<h3>${listening ? 'Lắng nghe…' : ready ? 'Sẵn sàng lắng nghe?' : headlines[settings.mode]}</h3><p>${listening ? 'Đợi âm thanh kết thúc trước khi chọn phím.' : ready ? 'Bấm nghe để phát câu hỏi.' : instructions[settings.mode]}</p>${melodySelection}<div class="button-row">${ready ? `<button class="primary-button" id="play-target" type="button">${speakerIcon}Nghe câu hỏi</button>` : `<button class="secondary-button" id="replay-target" type="button" ${listening || settings.challenge ? 'disabled' : ''}>${speakerIcon}${settings.challenge ? 'Chỉ nghe một lần' : 'Nghe lại'}</button>`}${settings.mode === 'note' && !settings.challenge ? `<button class="secondary-button" id="play-reference" type="button" ${!state.heard || listening ? 'disabled' : ''}>Nốt mẫu C4</button>` : ''}${settings.mode === 'melody' ? `<button class="primary-button" id="submit-melody" type="button" ${state.selected.length !== 3 || listening || ready ? 'disabled' : ''}>Xác nhận<span aria-hidden="true">→</span></button>` : ''}</div>${settings.mode === 'melody' && state.selected.length ? `<button class="text-button" id="undo-selection" type="button" ${listening ? 'disabled' : ''}>Xóa nốt cuối</button>` : ''}<p class="micro-note">${settings.challenge ? 'Thử thách · Không nghe lại, không nốt mẫu' : 'Cứ nghe lại khi cần. Kết quả luyện vẫn được ghi.'}</p>${settings.mode === 'note' && !settings.challenge ? '<p class="micro-note">C4 là mốc để nghe tương đối; bỏ mốc để luyện nhớ cao độ.</p>' : ''}${state.error ? `<p class="error-message">${state.error}</p>` : ''}</div><div class="card-bottom"><span>${settings.mode === 'melody' ? `${state.selected.length} / 3 nốt đã chọn` : 'Trả lời bằng đàn bên dưới'}</span><button class="end-session" id="end-session" type="button">Kết thúc phiên</button></div>`;
+    content = `<div class="listen-space">${waveform(listening)}${state.assisted ? '<span class="mini-badge">Có nghe lại / nốt mẫu</span>' : ''}<h3>${listening ? state.audioLoading ? 'Đang tải âm piano…' : 'Lắng nghe…' : ready ? 'Sẵn sàng lắng nghe?' : headlines[settings.mode]}</h3><p>${listening ? state.audioLoading ? 'Chỉ tải lần đầu. Đàn vẫn ở ngay bên dưới.' : 'Đợi âm thanh kết thúc trước khi chọn phím.' : ready ? 'Bấm nghe để phát câu hỏi.' : instructions[settings.mode]}</p>${melodySelection}<div class="button-row">${ready ? `<button class="primary-button" id="play-target" type="button">${speakerIcon}Nghe câu hỏi</button>` : `<button class="secondary-button" id="replay-target" type="button" ${listening || settings.challenge ? 'disabled' : ''}>${speakerIcon}${settings.challenge ? 'Chỉ nghe một lần' : 'Nghe lại'}</button>`}${settings.mode === 'note' && !settings.challenge ? `<button class="secondary-button" id="play-reference" type="button" ${!state.heard || listening ? 'disabled' : ''}>Nốt mẫu C4</button>` : ''}${settings.mode === 'melody' ? `<button class="primary-button" id="submit-melody" type="button" ${state.selected.length !== 3 || listening || ready ? 'disabled' : ''}>Xác nhận<span aria-hidden="true">→</span></button>` : ''}</div>${settings.mode === 'melody' && state.selected.length ? `<button class="text-button" id="undo-selection" type="button" ${listening ? 'disabled' : ''}>Xóa nốt cuối</button>` : ''}<p class="micro-note">${settings.challenge ? 'Thử thách · Không nghe lại, không nốt mẫu' : 'Cứ nghe lại khi cần. Kết quả luyện vẫn được ghi.'}</p>${settings.mode === 'note' && !settings.challenge ? '<p class="micro-note">C4 là mốc để nghe tương đối; bỏ mốc để luyện nhớ cao độ.</p>' : ''}${state.error ? `<p class="error-message">${state.error}</p>` : ''}</div><div class="card-bottom"><span>${settings.mode === 'melody' ? `${state.selected.length} / 3 nốt đã chọn` : 'Trả lời bằng đàn bên dưới'}</span><button class="end-session" id="end-session" type="button">Kết thúc phiên</button></div>`;
   }
   $('exercise-body').innerHTML = content;
   // Core actions are a fixed sibling of the content and piano, across every phase.
@@ -150,7 +151,7 @@ function updatePianoState() {
   }
 }
 function render() { document.body.classList.toggle('practice-screen', state.view === 'practice'); document.body.dataset.phase = state.phase; document.body.classList.toggle('session-active', isActive() && state.view === 'practice'); syncSettings(); renderStats(); renderExercise(); }
-function audioError() { state.error = 'Không thể phát âm thanh. Kiểm tra âm lượng và quyền âm thanh của trình duyệt, rồi bấm nghe lại.'; announce(state.error); }
+function audioError(error) { state.error = error?.code === 'PIANO_SAMPLE_LOAD' ? 'Chưa tải được âm piano. Kiểm tra kết nối rồi bấm nghe lại, hoặc kết thúc phiên để chọn âm thuần trong Thiết lập.' : 'Không thể phát âm thanh. Kiểm tra âm lượng và quyền âm thanh của trình duyệt, rồi bấm nghe lại.'; announce(state.error); }
 async function playTarget(assisted = false) {
   if (!state.question || state.phase === 'answered' || state.phase === 'results' || state.phase === 'listening') return;
   if (assisted && settings.challenge) return;
@@ -159,6 +160,14 @@ async function playTarget(assisted = false) {
   state.phase = 'listening'; state.error = ''; state.playbackBusy = true;
   render();
   try {
+    const rangeKey = `${settings.range}:${settings.accidentals}`;
+    if (settings.timbre === 'piano' && preparedPianoRange !== rangeKey) {
+      state.audioLoading = true; renderExercise();
+      await audio.preload(notePool(settings.range, settings.accidentals));
+      if (token !== playbackToken) return;
+      preparedPianoRange = rangeKey;
+      state.audioLoading = false; renderExercise();
+    }
     const completed = await audio.play(state.question.notes, { sequence: true, timbre: settings.timbre });
     if (token !== playbackToken || !completed) return;
     state.heard = true;
@@ -167,18 +176,18 @@ async function playTarget(assisted = false) {
     if (!state.startedAt) state.startedAt = performance.now();
     state.phase = 'awaiting';
     announce(settings.mode === 'melody' ? 'Đã phát xong. Chọn 3 nốt theo thứ tự.' : 'Đã phát xong. Chọn phím để trả lời.');
-  } catch {
+  } catch (error) {
     if (token !== playbackToken) return;
     state.phase = state.heard ? 'awaiting' : 'ready';
-    audioError();
+    audioError(error);
   } finally {
-    if (token === playbackToken) { state.playbackBusy = false; render(); }
+    if (token === playbackToken) { state.playbackBusy = false; state.audioLoading = false; render(); }
   }
 }
 function newQuestion() {
   ++playbackToken; audio.stop();
   state.question = createQuestion({ mode: settings.mode, pool: notePool(settings.range, settings.accidentals), profile });
-  state.phase = 'ready'; state.selected = []; state.assisted = false; state.heard = false; state.startedAt = 0; state.attempt = null; state.error = ''; state.playbackBusy = false;
+  state.phase = 'ready'; state.selected = []; state.assisted = false; state.heard = false; state.startedAt = 0; state.attempt = null; state.error = ''; state.playbackBusy = false; state.audioLoading = false;
   render();
   void playTarget();
 }
@@ -192,7 +201,7 @@ async function playReference() {
   const token = ++playbackToken;
   state.phase = 'listening'; state.playbackBusy = true; state.error = ''; render();
   try { if (await audio.play([60], { timbre: settings.timbre }) && token === playbackToken) state.assisted = true; }
-  catch { if (token === playbackToken) audioError(); }
+  catch (error) { if (token === playbackToken) audioError(error); }
   finally { if (token === playbackToken) { state.phase = 'awaiting'; state.playbackBusy = false; render(); if (!state.error) announce('Nốt mẫu C4. Kết quả luyện vẫn được ghi.'); } }
 }
 function flashKey(midi) {
@@ -205,7 +214,7 @@ function chooseNote(midi) {
   if (!notePool(settings.range, settings.accidentals).includes(midi)) return;
   if (state.phase === 'idle' || state.phase === 'results') {
     flashKey(midi);
-    audio.play([midi], { timbre: settings.timbre }).catch(() => { state.error = 'Không thể phát âm thanh. Kiểm tra quyền âm thanh của trình duyệt.'; renderExercise(); });
+    audio.play([midi], { timbre: settings.timbre }).catch(error => { audioError(error); renderExercise(); });
     return;
   }
   if (state.phase === 'answered') { if (!state.playbackBusy) { flashKey(midi); void hearAnswer([midi]); } return; }
@@ -231,7 +240,7 @@ function submitAnswer(answer) {
   announce(`${correct ? 'Đúng.' : 'Chưa đúng.'} Bạn chọn ${formatNotes(answer)}. Đáp án ${formatNotes(state.question.answer)}.${state.assisted ? ' Câu có hỗ trợ, đã ghi kết quả luyện.' : ''} Bấm câu tiếp theo khi sẵn sàng.`);
 }
 function finishSession() {
-  ++playbackToken; audio.stop(); state.playbackBusy = false; state.error = '';
+  ++playbackToken; audio.stop(); state.playbackBusy = false; state.audioLoading = false; state.error = '';
   if (state.session.length) { state.phase = 'results'; announce('Phiên luyện tập kết thúc. Kết quả đã hiển thị.'); }
   else { state.phase = 'idle'; state.question = null; announce('Đã kết thúc phiên. Chưa có câu trả lời nào được ghi.'); }
   render();
@@ -240,7 +249,7 @@ function nextQuestion() { if (state.phase !== 'answered') return; if (state.inde
 async function hearAnswer(notes) {
   if (state.phase !== 'answered' || state.playbackBusy) return;
   const token = ++playbackToken; state.playbackBusy = true; state.error = ''; renderExercise();
-  try { await audio.play(notes, { timbre: settings.timbre }); } catch { if (token === playbackToken) audioError(); }
+  try { await audio.play(notes, { timbre: settings.timbre }); } catch (error) { if (token === playbackToken) audioError(error); }
   finally { if (token === playbackToken) { state.playbackBusy = false; renderExercise(); } }
 }
 function renderProgress() {
@@ -324,7 +333,7 @@ $('midi-button').addEventListener('click', async () => {
 document.addEventListener('visibilitychange', () => {
   if (!document.hidden) return;
   const interrupted = state.phase === 'listening';
-  ++playbackToken; audio.stop(); state.playbackBusy = false;
+  ++playbackToken; audio.stop(); state.playbackBusy = false; state.audioLoading = false;
   if (interrupted) { state.phase = state.heard ? 'awaiting' : 'ready'; state.error = 'Âm thanh đã dừng khi bạn chuyển trang. Bấm nghe lại khi sẵn sàng.'; render(); }
 });
 syncSettings(); renderPiano(); render();

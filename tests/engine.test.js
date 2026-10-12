@@ -91,11 +91,11 @@ test('audio stop cancels every scheduled note and resolves playback as cancelled
   };
   try {
     const engine = new AudioEngine();
-    const playing = engine.play([60, 64, 67]);
+    const playing = engine.play([60, 64, 67], { timbre: 'sine' });
     await Promise.resolve();
     engine.stop();
     assert.equal(await playing, false);
-    assert.equal(oscillators.length, 18);
+    assert.equal(oscillators.length, 3);
     assert.ok(oscillators.every(oscillator => oscillator.stops === 2));
     assert.equal(engine.active.size, 0);
   } finally {

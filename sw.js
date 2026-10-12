@@ -1,6 +1,6 @@
 const CACHE_PREFIX = 'pitch-trainer-';
-const SHELL_CACHE = `${CACHE_PREFIX}shell-v15`;
-const ASSET_CACHE = `${CACHE_PREFIX}assets-v15`;
+const SHELL_CACHE = `${CACHE_PREFIX}shell-v16`;
+const ASSET_CACHE = `${CACHE_PREFIX}assets-v16`;
 const APP_SHELL_FILES = [
   './',
   './index.html',
@@ -10,6 +10,7 @@ const APP_SHELL_FILES = [
   './src/app.js',
   './src/engine.js',
   './src/audio.js',
+  ...[48, 51, 54, 57, 60, 63, 66, 69, 72, 75, 78, 81, 84].map(note => `./assets/piano/${note}.mp3`),
 ];
 
 const scopeUrl = new URL(self.registration.scope);

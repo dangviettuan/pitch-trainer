@@ -191,3 +191,6 @@ button:focus-visible, select:focus-visible, .piano-scroll:focus-visible { outlin
   .practice-screen main { overflow: visible; }
   .practice-screen .practice-card { min-height: 300px; }
 }
+
+.audio-credit { font-size: 11px; line-height: 1.7; color: #68705f; margin: 14px 0 0; }
+.audio-credit a { color: var(--green-dark); }

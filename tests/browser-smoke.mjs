@@ -9,6 +9,24 @@ const phoneViewports = [
  {width:320,height:568}, {width:360,height:640}, {width:390,height:660},
  {width:390,height:704}, {width:430,height:740},
 ];
+async function inspectAudio(context) {
+ await context.addInitScript(() => {
+  window.__audioEvidence = { buffers: [], oscillators: 0 };
+  const startBuffer = AudioBufferSourceNode.prototype.start;
+  AudioBufferSourceNode.prototype.start = function (...args) {
+   const data = this.buffer?.getChannelData(0);
+   let peak = 0;
+   if (data) for (const sample of data) peak = Math.max(peak, Math.abs(sample));
+   window.__audioEvidence.buffers.push({ duration: this.buffer?.duration, rate: this.playbackRate.value, peak });
+   return startBuffer.apply(this, args);
+  };
+  const startOscillator = OscillatorNode.prototype.start;
+  OscillatorNode.prototype.start = function (...args) {
+   window.__audioEvidence.oscillators++;
+   return startOscillator.apply(this, args);
+  };
+ });
+}
 async function changeSettings(target, configure) {
  await target.click('#open-settings');
  await target.waitForSelector('#settings-dialog[open]');
@@ -85,6 +103,7 @@ function sameGeometry(actual, expected, label) {
  }
 
  const context=await browser.newContext({viewport:{width:390,height:660}});
+ await inspectAudio(context);
  await context.addInitScript(()=>{Math.random=()=>0});
  page=await context.newPage();page.on('pageerror',e=>errors.push(e.message));
  await page.goto(baseURL);
@@ -94,6 +113,9 @@ function sameGeometry(actual, expected, label) {
  await page.click('#start-session');
  await page.waitForFunction(()=>!document.querySelector('[data-midi="60"]').disabled);
  assert(await page.locator('#mode').isDisabled());
+ const firstAudio = await page.evaluate(() => window.__audioEvidence);
+ assert.equal(firstAudio.oscillators,0, 'default piano uses recordings, not oscillator synthesis');
+ assert(firstAudio.buffers.length > 0 && firstAudio.buffers.every(b => b.duration > 5 && b.peak > 0.01), 'real MP3 recordings decode and play successfully');
  assert.equal(await page.evaluate(()=>document.activeElement.dataset.midi),'60', 'Start hands focus to the piano after playback');
  async function assertKeyboardVisible(note=60) {
   const box = await page.locator(`[data-midi="${note}"]`).boundingBox();
@@ -151,9 +173,17 @@ function sameGeometry(actual, expected, label) {
  await page.reload();assert.equal(await page.locator('#total-stat').innerText(),'13');
  assert.equal(await page.locator('#settings-dialog').isVisible(), false, 'reloading never reopens settings');
  await page.evaluate(()=>navigator.serviceWorker.ready);await page.waitForFunction(()=>navigator.serviceWorker.controller!==null);
+ assert.equal(await page.evaluate(async () => {
+  const keys = await caches.keys();
+  const paths = new Set();
+  for (const name of keys) for (const request of await (await caches.open(name)).keys())
+   if (/\/assets\/piano\/\d+\.mp3$/.test(new URL(request.url).pathname)) paths.add(request.url);
+  return paths.size;
+ }),13, 'all piano anchors are cached before going offline');
  await context.setOffline(true);await page.reload(); await page.waitForSelector('#start-session');
  assert.equal(await page.locator('#total-stat').innerText(),'13');
  await page.click('#start-session');await page.waitForFunction(()=>!document.querySelector('[data-midi="48"]').disabled);
+ assert((await page.evaluate(() => window.__audioEvidence.buffers)).length > 0, 'previously unheard low-range piano notes play offline');
  await page.click('[data-midi="48"]');assert.equal(await page.locator('#total-stat').innerText(),'14');
  await page.click('#next-question');
  await page.waitForFunction(()=>!document.querySelector('[data-midi="50"]').disabled);
@@ -225,5 +255,27 @@ function sameGeometry(actual, expected, label) {
  await page.click('#view-progress');
  assert((await page.locator('#progress-content').innerText()).includes('Không hỗ trợ: 0% trên 1 câu'), 'unassisted measurement stays distinct');
  assert.deepEqual(errors,[]);
- await learner.close(); await browser.close();
+ await learner.close();
+ const recovery = await browser.newContext({viewport:{width:390,height:660},serviceWorkers:'block'});
+ await recovery.addInitScript(() => {Math.random = () => 0});
+ await inspectAudio(recovery);
+ page = await recovery.newPage(); page.on('pageerror',e=>errors.push(e.message));
+ let denySamples = true;
+ await page.route('**/assets/piano/*.mp3', route => denySamples ? route.fulfill({status:503,body:'unavailable'}) : route.continue());
+ await page.goto(baseURL); await page.click('#start-session');
+ await page.waitForSelector('#play-target');
+ assert((await page.locator('.error-message').innerText()).includes('Chưa tải được âm piano'));
+ assert.equal(await page.locator('#total-stat').innerText(),'0', 'failed loading never records a trial');
+ assert.equal((await page.evaluate(() => window.__audioEvidence.buffers)).length,0, 'missing samples never silently become fake piano');
+ assert.equal(await page.evaluate(() => window.__audioEvidence.oscillators),0);
+ denySamples = false; await page.click('#play-target');
+ await page.waitForFunction(()=>!document.querySelector('[data-midi="60"]').disabled);
+ assert((await page.evaluate(() => window.__audioEvidence.buffers)).length > 0, 'sample loading recovers on retry');
+ await page.click('#end-session');
+ await changeSettings(page, () => page.selectOption('#timbre','sine'));
+ denySamples = true; const beforeSine = await page.evaluate(() => window.__audioEvidence.oscillators);
+ await page.click('#start-session'); await page.waitForFunction(()=>!document.querySelector('[data-midi="60"]').disabled);
+ assert((await page.evaluate(() => window.__audioEvidence.oscillators)) > beforeSine, 'sine stays available without piano files');
+ assert.deepEqual(errors,[]);
+ await recovery.close(); await browser.close();
 })().catch(async e=>{console.error(e);await page?.screenshot({path:'test-results/failure.png',fullPage:true}).catch(()=>{});await browser?.close();process.exitCode=1});
